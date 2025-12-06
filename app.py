@@ -13,6 +13,21 @@ GRID_WIDTH = 10
 GRID_HEIGHT = 10
 
 
+def draw_resource_bar(surface, gold, population, power):
+    bar_rect = pygame.Rect(0, 0, SCREEN_WIDTH, 40)
+    pygame.draw.rect(surface, (30, 30, 30), bar_rect)
+
+    font = pygame.font.SysFont("arial", 20)
+
+    gold_text = font.render(f"Gold: {gold}", True, (255, 215, 0))
+    pop_text = font.render(f"Population: {population}", True, (100, 200, 255))
+    power_text = font.render(f"Power: {power}", True, (200, 200, 255))
+
+    surface.blit(gold_text, (10, 10))
+    surface.blit(pop_text, (150, 10))
+    surface.blit(power_text, (350, 10))
+
+
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
     x = (gx - gy) * (TILE_WIDTH // 2)
     y = (gx + gy) * (TILE_HEIGHT // 2)
@@ -93,6 +108,10 @@ def main():
 
     grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
+    gold = 100
+    population = 0
+    power = 0
+
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
@@ -111,6 +130,8 @@ def main():
         
 
         screen.fill(color=(60, 120, 180))
+
+        draw_resource_bar(screen, gold, population, power)
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
