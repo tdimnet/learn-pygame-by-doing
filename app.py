@@ -13,6 +13,20 @@ GRID_WIDTH = 10
 GRID_HEIGHT = 10
 
 
+def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
+    x = (gx - gy) * (TILE_WIDTH // 2)
+    y = (gx + gy) * (TILE_HEIGHT // 2)
+    return x, y
+
+
+def draw_tile(
+    surface: pygame.Surface,
+    gx: int,
+    gy: int,
+    color: tuple[int, int, int]):
+    pass
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(size=(SCREEN_WIDTH, SCREEN_HEIGHT))
