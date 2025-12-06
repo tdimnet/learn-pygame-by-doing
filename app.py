@@ -59,6 +59,26 @@ def draw_tile(
     )
 
 
+def draw_building(surface, gx, gy, offset):
+    iso_x, iso_y = grid_to_iso(gx, gy)
+    ox, oy = offset
+    cx = iso_x + ox
+    cy = iso_y + oy
+
+    building_width = TILE_WIDTH // 2
+    building_height = TILE_HEIGHT
+
+    rect = pygame.Rect(
+        cx - building_width // 2,
+        cy - building_height,
+        building_width,
+        building_height
+    )
+
+    pygame.draw.rect(surface, (160, 50, 50), rect)
+    pygame.draw.rect(surface, (0, 0, 0), rect, 2)
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(size=(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -71,23 +91,34 @@ def main():
     offset_y = SCREEN_HEIGHT // 4
     offset = (offset_x, offset_y)
 
+    grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
+
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
 
+        mx, my = pygame.mouse.get_pos()
+        hover_gx, hover_gy = screen_to_grid(mx, my, offset)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                gx, gy = screen_to_grid(mx, my, offset)
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    grid_data[gx][gy] = 1
         
-        mx, my = pygame.mouse.get_pos()
-        hover_gx, hover_gy = screen_to_grid(mx, my, offset)
 
         screen.fill(color=(60, 120, 180))
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
+
+                # Update on hover
                 if gx == hover_gx and gy == hover_gy:
                     color = (200, 200, 50)
+                # Draw the grid with different color
                 else:
                     color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
 
@@ -97,6 +128,9 @@ def main():
                     gy=gy,
                     color=color,
                     offset=offset)
+
+                if grid_data[gx][gy] == 1:
+                    draw_building(screen, gx, gy, offset)
 
         pygame.display.flip()
 
