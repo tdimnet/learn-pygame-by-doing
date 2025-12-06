@@ -19,12 +19,23 @@ def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
     return x, y
 
 
+def screen_to_grid(mx: int, my: int, offset: tuple[int, int]):
+    ox, oy = offset
+    x = mx - ox
+    y = my - oy
+
+    gx = (y / (TILE_HEIGHT / 2) + x / (TILE_WIDTH / 2)) / 2
+    gy = (y / (TILE_HEIGHT / 2) - x / (TILE_WIDTH / 2)) / 2
+
+    return int(gx), int(gy)
+
+
 def draw_tile(
-    surface: pygame.Surface,
-    gx: int,
-    gy: int,
-    color: tuple[int, int, int],
-    offset: tuple[int, int]):
+        surface: pygame.Surface,
+        gx: int,
+        gy: int,
+        color: tuple[int, int, int],
+        offset: tuple[int, int]):
     iso_x, iso_y = grid_to_iso(gx, gy)
     offset_x, offset_y = offset
     cx = iso_x + offset_x
@@ -57,7 +68,7 @@ def main():
     clock = pygame.time.Clock()
  
     offset_x = SCREEN_WIDTH // 2
-    offset_y = SCREEN_HEIGHT // 2
+    offset_y = SCREEN_HEIGHT // 4
     offset = (offset_x, offset_y)
 
     running = True
@@ -67,15 +78,18 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        
+        mx, my = pygame.mouse.get_pos()
+        hover_gx, hover_gy = screen_to_grid(mx, my, offset)
 
         screen.fill(color=(60, 120, 180))
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
-                if (gx + gy) % 2 == 0:
-                    color = (100, 180, 100)
+                if gx == hover_gx and gy == hover_gy:
+                    color = (200, 200, 50)
                 else:
-                    color = (80, 160, 80)
+                    color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
 
                 draw_tile(
                     surface=screen,
