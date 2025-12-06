@@ -12,6 +12,30 @@ TILE_HEIGHT = 32
 GRID_WIDTH = 10
 GRID_HEIGHT = 10
 
+BUILDINGS = {
+    "house": {
+        "cost": 10,
+        "pop_production": 1,
+        "gold_production": 0,
+        "power_production": 0,
+        "pop_consume": 0,
+    },
+    "factory": {
+        "cost": 20,
+        "pop_production": 0,
+        "gold_production": 2,
+        "power_production": 0,
+        "pop_consume": 1,
+    },
+    "powerplant": {
+        "cost": 50,
+        "pop_production": 0,
+        "gold_production": 0,
+        "power_production": 1,
+        "pop_consume": 1,
+    }
+}
+
 
 def draw_resource_bar(surface, gold, population, power):
     bar_rect = pygame.Rect(0, 0, SCREEN_WIDTH, 40)
@@ -112,6 +136,8 @@ def main():
     population = 0
     power = 0
 
+    idle_timer = 0
+
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
@@ -126,7 +152,27 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 gx, gy = screen_to_grid(mx, my, offset)
                 if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
-                    grid_data[gx][gy] = 1
+                    grid_data[gx][gy] = "factory"
+                    print(grid_data)
+
+
+        # ------------------ IDLE ECONOMY UPDATE ------------------
+        idle_timer += dt
+        if idle_timer >= 1.0:
+            idle_timer = 0
+
+            total_pop_prod = 0
+            total_gold_prod = 0
+            total_power_prod = 0
+            total_pop_consume = 0
+
+            for gx in range(GRID_WIDTH):
+                for gy in range(GRID_HEIGHT):
+                    b = grid_data[gx][gy]
+                    if b == 0:
+                        continue
+
+                    print(b)
         
 
         screen.fill(color=(60, 120, 180))
