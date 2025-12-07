@@ -181,8 +181,16 @@ def main():
                     total_power_prod += props["power_production"]
                     total_pop_consume += props["pop_consume"]
 
+            if total_pop_consume > 0:
+                if population <= 0:
+                    pop_ratio = 0
+                else:
+                    pop_ratio = min(1.0, population / total_pop_consume)
+            else:
+                pop_ratio = 1.0
+
             print("====")
-            print(total_gold_prod)
+            print(pop_ratio)
             print("====")
 
 
