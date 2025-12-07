@@ -189,9 +189,16 @@ def main():
             else:
                 pop_ratio = 1.0
 
-            print("====")
-            print(pop_ratio)
-            print("====")
+            adjusted_gold_prod = total_gold_prod * pop_ratio
+            adjusted_pop_prod = total_pop_prod - total_pop_consume
+
+            population += adjusted_pop_prod
+            if population < 0:
+                population = 0
+
+            gold += adjusted_gold_prod
+
+            power = total_power_prod
 
 
         screen.fill(color=(60, 120, 180))
