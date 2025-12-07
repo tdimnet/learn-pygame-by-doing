@@ -130,13 +130,13 @@ def main():
     offset_y = SCREEN_HEIGHT // 4
     offset = (offset_x, offset_y)
 
-    grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
-
     gold = 100
     population = 0
     power = 0
 
     idle_timer = 0
+
+    grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
     running = True
     while running:
@@ -152,8 +152,11 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 gx, gy = screen_to_grid(mx, my, offset)
                 if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
-                    grid_data[gx][gy] = "factory"
-                    print(grid_data)
+                    if grid_data[gx][gy] == 0:
+                        cost = BUILDINGS["factory"]["cost"]
+                        if gold >= cost:
+                            gold -= cost
+                            grid_data[gx][gy] = "factory"
 
 
         # ------------------ IDLE ECONOMY UPDATE ------------------
@@ -172,8 +175,16 @@ def main():
                     if b == 0:
                         continue
 
-                    print(b)
-        
+                    props = BUILDINGS[b]
+                    total_pop_prod += props["pop_production"]
+                    total_gold_prod += props["gold_production"]
+                    total_power_prod += props["power_production"]
+                    total_pop_consume += props["pop_consume"]
+
+            print("====")
+            print(total_gold_prod)
+            print("====")
+
 
         screen.fill(color=(60, 120, 180))
 
