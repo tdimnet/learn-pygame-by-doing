@@ -118,6 +118,24 @@ def draw_building(surface, gx, gy, offset):
     pygame.draw.rect(surface, (0, 0, 0), rect, 2)
 
 
+def draw_tool_bar(surface, tool_buttons, selected):
+    font = pygame.font.SysFont("arial", 18)
+
+    for btn in tool_buttons:
+        rect = btn["rect"]
+        color = btn["color"]
+
+        pygame.draw.rect(surface, color, rect)
+
+        border_color = (0, 0, 0) if btn["type"] != selected else (255, 255, 255)
+        pygame.draw.rect(surface, border_color, rect, 3)
+
+        text = font.render(btn["type"].capitalize(), True, (0, 0, 0))
+        text_x = rect.x + (rect.width - text.get_width()) // 2
+        text_y = rect.y + (rect.height - text.get_height()) // 2
+        surface.blit(text, (text_x, text_y))
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(size=(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -131,7 +149,7 @@ def main():
     offset = (offset_x, offset_y)
 
     gold = 100
-    population = 0
+    population = 20
     power = 0
 
     idle_timer = 0
@@ -222,7 +240,7 @@ def main():
                     color=color,
                     offset=offset)
 
-                if grid_data[gx][gy] == 1:
+                if grid_data[gx][gy] == "factory":
                     draw_building(screen, gx, gy, offset)
 
         pygame.display.flip()
