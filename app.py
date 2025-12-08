@@ -148,6 +148,25 @@ def main():
     offset_y = SCREEN_HEIGHT // 4
     offset = (offset_x, offset_y)
 
+    tool_buttons = [
+        {
+            "type": "house",
+            "rect": pygame.Rect(10, 50, 120, 30),
+            "color": (50, 150, 255)
+        },
+        {
+            "type": "factory",
+            "rect": pygame.Rect(140, 50, 120, 30),
+            "color": (200, 60, 60)
+        },
+        {
+            "type": "powerplant",
+            "rect": pygame.Rect(270, 50, 140, 30),
+            "color": (230, 200, 60)
+        }
+    ]
+    selected_building = "house"
+
     gold = 100
     population = 20
     power = 0
@@ -168,13 +187,18 @@ def main():
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                gx, gy = screen_to_grid(mx, my, offset)
-                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
-                    if grid_data[gx][gy] == 0:
-                        cost = BUILDINGS["factory"]["cost"]
-                        if gold >= cost:
-                            gold -= cost
-                            grid_data[gx][gy] = "factory"
+                for btn in tool_buttons:
+                    if btn["rect"].collidepoint(mx, my):
+                        selected_building = btn["type"]
+                        break
+                else:
+                    gx, gy = screen_to_grid(mx, my, offset)
+                    if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                        if grid_data[gx][gy] == 0:
+                            cost = BUILDINGS[selected_building]["cost"]
+                            if gold >= cost:
+                                gold -= cost
+                                grid_data[gx][gy] = selected_building
 
 
         # ------------------ IDLE ECONOMY UPDATE ------------------
@@ -222,6 +246,7 @@ def main():
         screen.fill(color=(60, 120, 180))
 
         draw_resource_bar(screen, gold, population, power)
+        draw_tool_bar(screen, tool_buttons, selected_building)
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
