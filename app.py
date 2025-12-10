@@ -143,6 +143,19 @@ def draw_tool_bar(surface, tool_buttons, selected):
         surface.blit(text, (text_x, text_y))
 
 
+def draw_iso_outline(surface, gx, gy, offset, color, width=3):
+    iso_x, iso_y = grid_to_iso(gx, gy)
+    ox, oy = offset
+    cx, cy = iso_x + ox, iso_y + oy
+
+    top = (cx, cy - TILE_HEIGHT // 2)
+    right = (cx + TILE_WIDTH // 2, cy)
+    bottom = (cx, cy + TILE_HEIGHT // 2)
+    left = (cx - TILE_WIDTH // 2, cy)
+
+    pygame.draw.polygon(surface, color, [top, right, bottom, left], width)
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(size=(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -259,11 +272,14 @@ def main():
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
-
-                # Update on hover
                 if gx == hover_gx and gy == hover_gy:
-                    color = (200, 200, 50)
-                # Draw the grid with different color
+                    if grid_data[gx][gy] == 0:
+                        draw_iso_outline(screen, gx, gy, offset, (255, 255,
+                                                                  255), 3)
+                    else:
+                        draw_iso_outline(screen, gx, gy,
+                                         offset, (255, 80, 80),
+                                         3)
                 else:
                     color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
 
