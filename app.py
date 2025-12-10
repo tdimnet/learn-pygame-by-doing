@@ -174,7 +174,7 @@ def main():
     ]
     selected_building = "house"
 
-    gold = 50
+    gold = 500
     population = 0
     power = 0
 
@@ -241,18 +241,20 @@ def main():
             adjusted_gold_prod = total_gold_prod * pop_ratio
             adjusted_pop_prod = total_pop_prod - total_pop_consume
 
+            boost = 1 + (0.2 * power)
+            adjusted_gold_prod *= boost
+
             population += adjusted_pop_prod
             if population < 0:
                 population = 0
 
             gold += adjusted_gold_prod
-
-            power = total_power_prod
+            power = int(total_power_prod)
 
 
         screen.fill(color=(60, 120, 180))
 
-        draw_resource_bar(screen, gold, population, power)
+        draw_resource_bar(screen, int(gold), int(population), int(power))
         draw_tool_bar(screen, tool_buttons, selected_building)
 
         for gx in range(GRID_WIDTH):
