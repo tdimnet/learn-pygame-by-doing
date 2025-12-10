@@ -273,6 +273,7 @@ def main():
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
                 if gx == hover_gx and gy == hover_gy:
+                    color = (200, 200, 50)
                     if grid_data[gx][gy] == 0:
                         draw_iso_outline(screen, gx, gy, offset, (255, 255,
                                                                   255), 3)
