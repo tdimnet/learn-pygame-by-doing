@@ -98,7 +98,14 @@ def draw_tile(
     )
 
 
-def draw_building(surface, gx, gy, offset):
+def draw_building(surface, gx, gy, offset, btype):
+    colors = {
+        "house": (50, 150, 255),
+        "factory": (200, 60, 60),
+        "powerplant": (230, 200, 60)
+    }
+    color = colors[btype]
+
     iso_x, iso_y = grid_to_iso(gx, gy)
     ox, oy = offset
     cx = iso_x + ox
@@ -114,7 +121,7 @@ def draw_building(surface, gx, gy, offset):
         building_height
     )
 
-    pygame.draw.rect(surface, (160, 50, 50), rect)
+    pygame.draw.rect(surface, color, rect)
     pygame.draw.rect(surface, (0, 0, 0), rect, 2)
 
 
@@ -167,8 +174,8 @@ def main():
     ]
     selected_building = "house"
 
-    gold = 100
-    population = 20
+    gold = 50
+    population = 0
     power = 0
 
     idle_timer = 0
@@ -265,8 +272,9 @@ def main():
                     color=color,
                     offset=offset)
 
-                if grid_data[gx][gy] == "factory":
-                    draw_building(screen, gx, gy, offset)
+                if grid_data[gx][gy] != 0:
+                    draw_building(screen, gx, gy, offset,
+                                  grid_data[gx][gy])
 
         pygame.display.flip()
 
