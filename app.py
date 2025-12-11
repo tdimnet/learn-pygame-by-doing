@@ -40,6 +40,16 @@ BUILDINGS = {
 }
 
 
+def create_empty_city():
+    return {
+        "grid": [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)],
+        "gold": 50,
+        "population": 0,
+        "power": 0,
+        "pop_effect": [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
+    }
+
+
 def save_game(grid_data, gold, population, power, filename="save.json"):
     data = {
         "grid": grid_data,
