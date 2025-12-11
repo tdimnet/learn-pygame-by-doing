@@ -50,12 +50,10 @@ def create_empty_city():
     }
 
 
-def save_game(grid_data, gold, population, power, filename="save.json"):
+def save_game(cities, current_city, filename="save.json"):
     data = {
-        "grid": grid_data,
-        "gold": gold,
-        "population": population,
-        "power": power
+        "cities": cities,
+        "current_city": current_city
     }
     with open (filename, "w") as f:
         json.dump(data, f)
@@ -202,20 +200,6 @@ def main():
     pygame.display.set_caption("Buildings")
     clock = pygame.time.Clock()
 
-
-    save = load_game()
-    if save is not None:
-        grid_data = save["grid"]
-        gold = save["gold"]
-        population = save["population"]
-        power = save["power"]
-    else:
-        grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
-        gold = 50
-        population = 0
-        power = 0
-
-
     offset = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
 
     tool_buttons = [
@@ -227,90 +211,149 @@ def main():
 
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
+    prev_city_button = pygame.Rect(450, 50, 40, 30)
+    next_city_button = pygame.Rect(500, 50, 40, 30)
+
+    loaded = load_game()
+    if loaded is not None:
+        cities = loaded["cities"]
+        current_city = loaded.get("current_city", 0)
+        if not cities:
+            cities = [create_empty_city()]
+    else:
+        cities = [create_empty_city()]
+        current_city = 0
+
     idle_timer = 0
 
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
         mx, my = pygame.mouse.get_pos()
+
+        def city():
+            return cities[current_city]
+
         hover_gx, hover_gy = screen_to_grid(mx, my, offset)
 
+        # Event loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                save_game(grid_data, gold, population, power)
+                save_game(cities, current_city)
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                clicked_tool = False
                 for btn in tool_buttons:
                     if btn["rect"].collidepoint(mx, my):
                         selected_building = btn["type"]
+                        clicked_tool = True
                         break
-                else:
-                    gx, gy = screen_to_grid(mx, my, offset)
-                    if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
-                        if grid_data[gx][gy] == 0:
-                            cost = BUILDINGS[selected_building]["cost"]
-                            if gold >= cost:
-                                gold -= cost
-                                grid_data[gx][gy] = selected_building
-                                pop_effect[gx][gy] = 0.15 
 
+                if clicked_tool:
+                    continue
+
+                if prev_city_button.collidepoint(mx, my):
+                    if current_city > 0:
+                        current_city -= 1
+                    continue
+
+                if next_city_button.collidepoint(mx, my):
+                    current_city += 1
+                    if current_city >= len(cities):
+                        cities.append(create_empty_city())
+                    continue
+
+                gx, gy = screen_to_grid(mx, my, offset)
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    if city()["grid"][gx][gy] == 0:
+                        cost = BUILDINGS[selected_building]["cost"]
+                        if city()["gold"] >= cost:
+                            city()["gold"] -= cost
+                            city()["grid"][gx][gy] = selected_building
+                            city()["pop_effect"][gx][gy] = 0.15 
+
+
+        # Idle Economy update
         idle_timer += dt
         if idle_timer >= 1.0:
             idle_timer = 0
 
-            total_pop_prod = 0
-            total_gold_prod = 0
-            total_power_prod = 0
-            total_pop_consume = 0
+            for c in cities:
+                total_pop_prod = 0
+                total_gold_prod = 0
+                total_power_prod = 0
+                total_pop_consume = 0
 
-            for gx in range(GRID_WIDTH):
-                for gy in range(GRID_HEIGHT):
-                    b = grid_data[gx][gy]
-                    if b == 0:
-                        continue
+                grid = c["grid"]
 
-                    props = BUILDINGS[b]
-                    total_pop_prod += props["pop_production"]
-                    total_gold_prod += props["gold_production"]
-                    total_power_prod += props["power_production"]
-                    total_pop_consume += props["pop_consume"]
+                for gx in range(GRID_WIDTH):
+                    for gy in range(GRID_HEIGHT):
+                        b = grid[gx][gy]
+                        if b == 0:
+                            continue
 
-            if total_pop_consume > 0:
-                if population <= 0:
-                    pop_ratio = 0
+                        props = BUILDINGS[b]
+                        total_pop_prod += props["pop_production"]
+                        total_gold_prod += props["gold_production"]
+                        total_power_prod += props["power_production"]
+                        total_pop_consume += props["pop_consume"]
+
+                population = c["population"]
+                if total_pop_consume > 0:
+                    if population <= 0:
+                        pop_ratio = 0
+                    else:
+                        pop_ratio = min(1.0, population / total_pop_consume)
                 else:
-                    pop_ratio = min(1.0, population / total_pop_consume)
-            else:
-                pop_ratio = 1.0
+                    pop_ratio = 1.0
 
-            adjusted_gold_prod = total_gold_prod * pop_ratio
-            adjusted_pop_prod = total_pop_prod - total_pop_consume
+                adjusted_gold_prod = total_gold_prod * pop_ratio
+                adjusted_pop_prod = total_pop_prod - total_pop_consume
 
-            boost = 1 + (0.2 * power)
-            adjusted_gold_prod *= boost
+                power_val = c["power"]
+                boost = 1 + (0.2 * power_val)
+                adjusted_gold_prod *= boost
 
-            population += adjusted_pop_prod
-            if population < 0:
-                population = 0
+                population += adjusted_pop_prod
+                if population < 0:
+                    population = 0
+                c["population"] = population
 
-            gold += adjusted_gold_prod
-            power = total_power_prod
+                c["gold"] += adjusted_gold_prod
+                c["power"] = total_power_prod
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
-                if pop_effect[gx][gy] > 0:
-                    pop_effect[gx][gy] -= dt
-                    if pop_effect[gx][gy] < 0:
-                        pop_effect[gx][gy] = 0
+                if city()["pop_effect"][gx][gy] > 0:
+                    city()["pop_effect"][gx][gy] -= dt
+                    if city()["pop_effect"][gx][gy] < 0:
+                        city()["pop_effect"][gx][gy] = 0
 
         screen.fill((60, 120, 180))
 
-        draw_resource_bar(screen, int(gold), int(population), int(power))
+        draw_resource_bar(
+            screen,
+            int(city()["gold"]),
+            int(city()["population"]),
+            int(city()["power"])
+        )
         draw_tool_bar(screen, tool_buttons, selected_building)
+
+        pygame.draw.rect(screen, (180, 180, 180), prev_city_button)
+        pygame.draw.rect(screen, (180, 180, 180), next_city_button)
+        font = pygame.font.SysFont("arial", 20)
+        screen.blit(font.render("<", True, (0, 0, 0)),
+                    (prev_city_button.x + 12, prev_city_button.y + 2))
+        screen.blit(font.render(">", True, (0, 0, 0)),
+                    (next_city_button.x + 12, next_city_button.y + 2))
+        city_label = font.render(f"Ville {current_city + 1}", True, (255, 255, 255))
+        screen.blit(city_label, (450, 15))
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
+                grid = city()["grid"]
+
                 if gx == hover_gx and gy == hover_gy:
                     tile_color = (200, 200, 50)
                 else:
@@ -319,11 +362,18 @@ def main():
                 draw_tile(screen, gx, gy, tile_color, offset)
 
                 if gx == hover_gx and gy == hover_gy:
-                    outline_color = (255, 255, 255) if grid_data[gx][gy] == 0 else (255, 80, 80)
+                    outline_color = (255, 255, 255) if grid[gx][gy] == 0 else (255, 80, 80)
                     draw_iso_outline(screen, gx, gy, offset, outline_color, 3)
 
-                if grid_data[gx][gy] != 0:
-                    draw_building(screen, gx, gy, offset, grid_data[gx][gy], pop_effect[gx][gy])
+                if grid[gx][gy] != 0:
+                    draw_building(
+                        screen,
+                        gx,
+                        gy,
+                        offset,
+                        grid[gx][gy],
+                        city()["pop_effect"][gx][gy],
+                    )
 
         pygame.display.flip()
 
