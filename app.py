@@ -98,7 +98,7 @@ def draw_tile(
     )
 
 
-def draw_building(surface, gx, gy, offset, btype):
+def draw_building(surface, gx, gy, offset, btype, pop_time=0):
     colors = {
         "house": (50, 150, 255),
         "factory": (200, 60, 60),
@@ -111,8 +111,14 @@ def draw_building(surface, gx, gy, offset, btype):
     cx = iso_x + ox
     cy = iso_y + oy
 
-    building_width = TILE_WIDTH // 2
-    building_height = TILE_HEIGHT
+    base_duration = 0.15
+    if pop_time > 0:
+        scale = 1.0 + (pop_time / base_duration) * 0.25
+    else:
+        scale = 1.0
+
+    building_width = int((TILE_WIDTH // 2) * scale)
+    building_height = int(TILE_HEIGHT * scale)
 
     rect = pygame.Rect(
         cx - building_width // 2,
@@ -155,63 +161,55 @@ def draw_iso_outline(surface, gx, gy, offset, color, width=3):
 
     pygame.draw.polygon(surface, color, [top, right, bottom, left], width)
 
-
 def main():
     pygame.init()
-    screen = pygame.display.set_mode(size=(SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption(
-        title="Buildings"
-    )
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Buildings")
     clock = pygame.time.Clock()
- 
-    offset_x = SCREEN_WIDTH // 2
-    offset_y = SCREEN_HEIGHT // 4
-    offset = (offset_x, offset_y)
 
+    offset = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
+
+    # --- Barre d'outils ---
     tool_buttons = [
-        {
-            "type": "house",
-            "rect": pygame.Rect(10, 50, 120, 30),
-            "color": (50, 150, 255)
-        },
-        {
-            "type": "factory",
-            "rect": pygame.Rect(140, 50, 120, 30),
-            "color": (200, 60, 60)
-        },
-        {
-            "type": "powerplant",
-            "rect": pygame.Rect(270, 50, 140, 30),
-            "color": (230, 200, 60)
-        }
+        {"type": "house",      "rect": pygame.Rect(10, 50, 120, 30), "color": (50, 150, 255)},
+        {"type": "factory",    "rect": pygame.Rect(140, 50, 120, 30), "color": (200, 60, 60)},
+        {"type": "powerplant", "rect": pygame.Rect(270, 50, 140, 30), "color": (230, 200, 60)}
     ]
     selected_building = "house"
 
-    gold = 500
+    # --- Ressources ---
+    gold = 50
     population = 0
     power = 0
 
-    idle_timer = 0
-
+    # --- Grille ---
     grid_data = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
+
+    # --- Animation POP ---
+    pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
+
+    # --- Idle ---
+    idle_timer = 0
 
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
-
         mx, my = pygame.mouse.get_pos()
         hover_gx, hover_gy = screen_to_grid(mx, my, offset)
 
+        # ------------------ EVENTS ------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                # Clic sur un bouton ?
                 for btn in tool_buttons:
                     if btn["rect"].collidepoint(mx, my):
                         selected_building = btn["type"]
                         break
                 else:
+                    # Clic sur la grille
                     gx, gy = screen_to_grid(mx, my, offset)
                     if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
                         if grid_data[gx][gy] == 0:
@@ -219,7 +217,7 @@ def main():
                             if gold >= cost:
                                 gold -= cost
                                 grid_data[gx][gy] = selected_building
-
+                                pop_effect[gx][gy] = 0.15  # POP ANIMATION
 
         # ------------------ IDLE ECONOMY UPDATE ------------------
         idle_timer += dt
@@ -231,6 +229,7 @@ def main():
             total_power_prod = 0
             total_pop_consume = 0
 
+            # Calcul global
             for gx in range(GRID_WIDTH):
                 for gy in range(GRID_HEIGHT):
                     b = grid_data[gx][gy]
@@ -243,6 +242,7 @@ def main():
                     total_power_prod += props["power_production"]
                     total_pop_consume += props["pop_consume"]
 
+            # Ajustement population
             if total_pop_consume > 0:
                 if population <= 0:
                     pop_ratio = 0
@@ -254,46 +254,51 @@ def main():
             adjusted_gold_prod = total_gold_prod * pop_ratio
             adjusted_pop_prod = total_pop_prod - total_pop_consume
 
+            # BOOST des centrales
             boost = 1 + (0.2 * power)
             adjusted_gold_prod *= boost
 
+            # Application
             population += adjusted_pop_prod
             if population < 0:
                 population = 0
 
             gold += adjusted_gold_prod
-            power = int(total_power_prod)
+            power = total_power_prod
 
+        # ------------------ POP ANIMATION UPDATE ------------------
+        for gx in range(GRID_WIDTH):
+            for gy in range(GRID_HEIGHT):
+                if pop_effect[gx][gy] > 0:
+                    pop_effect[gx][gy] -= dt
+                    if pop_effect[gx][gy] < 0:
+                        pop_effect[gx][gy] = 0
 
-        screen.fill(color=(60, 120, 180))
+        # ------------------ RENDER ------------------
+        screen.fill((60, 120, 180))
 
         draw_resource_bar(screen, int(gold), int(population), int(power))
         draw_tool_bar(screen, tool_buttons, selected_building)
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
+
+                # Couleur de base ou highlight
                 if gx == hover_gx and gy == hover_gy:
-                    color = (200, 200, 50)
-                    if grid_data[gx][gy] == 0:
-                        draw_iso_outline(screen, gx, gy, offset, (255, 255,
-                                                                  255), 3)
-                    else:
-                        draw_iso_outline(screen, gx, gy,
-                                         offset, (255, 80, 80),
-                                         3)
+                    tile_color = (200, 200, 50)
                 else:
-                    color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
+                    tile_color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
 
-                draw_tile(
-                    surface=screen,
-                    gx=gx,
-                    gy=gy,
-                    color=color,
-                    offset=offset)
+                draw_tile(screen, gx, gy, tile_color, offset)
 
+                # Contour dynamique
+                if gx == hover_gx and gy == hover_gy:
+                    outline_color = (255, 255, 255) if grid_data[gx][gy] == 0 else (255, 80, 80)
+                    draw_iso_outline(screen, gx, gy, offset, outline_color, 3)
+
+                # Bâtiments
                 if grid_data[gx][gy] != 0:
-                    draw_building(screen, gx, gy, offset,
-                                  grid_data[gx][gy])
+                    draw_building(screen, gx, gy, offset, grid_data[gx][gy], pop_effect[gx][gy])
 
         pygame.display.flip()
 
