@@ -155,6 +155,45 @@ def draw_resource_bar(surface, gold, population, power):
     surface.blit(power_text, (350, 10))
 
 
+def draw_harmony_bar(surface, harmony):
+    x = 10
+    y = 90
+    width = 300
+    height = 12
+
+    pygame.draw.rect(
+        surface,
+        (40, 40, 40),
+        (x, y, width, height),
+        border_radius=6
+    )
+
+    harmony = max(0, min(100, harmony))
+    fill_width = int((harmony / 100) * width)
+
+    if harmony >= 70:
+        color = (100, 200, 120)
+    elif harmony >= 40:
+        color = (200, 200, 120)
+    else:
+        color = (200, 100, 100)
+
+    pygame.draw.rect(
+        surface,
+        color,
+        (x, y, fill_width, height),
+        border_radius=6
+    )
+
+    font = pygame.font.SysFont("arial", 14)
+    text = font.render(
+        f"Harmonie {int(harmony)}%",
+        True,
+        (230, 230, 230)
+    )
+    surface.blit(text, (x + width + 10, y - 2))
+
+
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
     x = (gx - gy) * (TILE_WIDTH // 2)
     y = (gx + gy) * (TILE_HEIGHT // 2)
@@ -399,9 +438,6 @@ def main():
 
                 c["harmony"] = harmony
 
-                print(c["harmony"])
-
-
                 total_pop_consume = max(0, total_pop_consume - garden_count)
 
                 population = c["population"]
@@ -453,6 +489,7 @@ def main():
             int(city()["population"]),
             int(city()["power"])
         )
+        draw_harmony_bar(screen, city().get("harmony", 50))
         draw_tool_bar(screen, tool_buttons, selected_building)
 
         pygame.draw.rect(screen, (180, 180, 180), prev_city_button)
