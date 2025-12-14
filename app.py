@@ -36,6 +36,13 @@ BUILDINGS = {
         "gold_production": 0,
         "power_production": 1,
         "pop_consume": 1,
+    },
+    "garden": {
+        "cost": 30,
+        "pop_production": 1,
+        "gold_production": 0,
+        "power_production": 0,
+        "pop_consume": 0,
     }
 }
 
@@ -172,7 +179,8 @@ def draw_building(surface, gx, gy, offset, btype, pop_time=0):
     colors = {
         "house": (50, 150, 255),
         "factory": (200, 60, 60),
-        "powerplant": (230, 200, 60)
+        "powerplant": (230, 200, 60),
+        "garden" : (80, 180, 120)
     }
     color = colors[btype]
 
@@ -243,7 +251,8 @@ def main():
     tool_buttons = [
         {"type": "house",      "rect": pygame.Rect(10, 50, 120, 30), "color": (50, 150, 255)},
         {"type": "factory",    "rect": pygame.Rect(140, 50, 120, 30), "color": (200, 60, 60)},
-        {"type": "powerplant", "rect": pygame.Rect(270, 50, 140, 30), "color": (230, 200, 60)}
+        {"type": "powerplant", "rect": pygame.Rect(270, 50, 140, 30), "color": (230, 200, 60)},
+        {"type": "garden", "rect": pygame.Rect(420, 50, 120, 30), "color": (80, 180, 120)},
     ]
     selected_building = "house"
 
@@ -341,6 +350,13 @@ def main():
                         total_gold_prod += props["gold_production"]
                         total_power_prod += props["power_production"]
                         total_pop_consume += props["pop_consume"]
+
+                garden_count = sum(
+                    1 for gx in range(GRID_WIDTH)
+                    for gy in range(GRID_HEIGHT)
+                    if grid[gx][gy] == "garden"
+                )
+
 
                 population = c["population"]
                 if total_pop_consume > 0:
