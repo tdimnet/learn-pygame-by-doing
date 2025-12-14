@@ -15,6 +15,10 @@ TILE_HEIGHT = 32
 GRID_WIDTH = 10
 GRID_HEIGHT = 10
 
+BASE_BG_COLOR = (60, 120, 180)
+WARM_BG_COLOR = (70, 140, 160)
+COLD_BG_COLOR = (50, 100, 160)
+
 BUILDINGS = {
     "house": {
         "cost": 10,
@@ -113,6 +117,25 @@ def create_empty_city():
         "harmony": 50,
         "harmony_time": 0.0
     }
+
+
+def get_harmony_color_bg(harmony):
+    h = max(0, min(100, harmony)) / 100.0
+
+    if h >= 0.5:
+        t = (h - 0.5) * 2
+        return (
+            int(BASE_BG_COLOR[0] + t * (WARM_BG_COLOR[0] - BASE_BG_COLOR[0])),
+            int(BASE_BG_COLOR[1] + t * (WARM_BG_COLOR[1] - BASE_BG_COLOR[1])),
+            int(BASE_BG_COLOR[2] + t * (WARM_BG_COLOR[2] - BASE_BG_COLOR[2])),
+        )
+    else:
+        t = (0.5 - h) * 2
+        return (
+            int(BASE_BG_COLOR[0] + t * (COLD_BG_COLOR[0] - BASE_BG_COLOR[0])),
+            int(BASE_BG_COLOR[1] + t * (COLD_BG_COLOR[1] - BASE_BG_COLOR[1])),
+            int(BASE_BG_COLOR[2] + t * (COLD_BG_COLOR[2] - BASE_BG_COLOR[2])),
+        )
 
 
 def save_game(cities, current_city, completed_milestones, filename="save.json"):
@@ -502,7 +525,8 @@ def main():
                     if city()["pop_effect"][gx][gy] < 0:
                         city()["pop_effect"][gx][gy] = 0
 
-        screen.fill((60, 120, 180))
+        bg_color = get_harmony_color_bg(city().get("harmony", 50))
+        screen.fill(bg_color)
 
         draw_resource_bar(
             screen,
