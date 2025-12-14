@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import sys
 
@@ -225,6 +226,30 @@ def draw_harmony_bar(surface, harmony):
         (230, 230, 230)
     )
     surface.blit(text, (x + width + 10, y - 2))
+
+
+def draw_garden_halo(surface, gx, gy, offset, time_sec):
+    iso_x, iso_y = grid_to_iso(gx, gy)
+    ox, oy = offset
+    cx = iso_x + ox
+    cy = iso_y + oy - TILE_HEIGHT // 2
+
+    base_radius = 26
+    pulse = (math.sin(time_sec * 1.5) + 1) * 0.5
+    radius = int(base_radius + pulse * 4)
+
+    alpha = int(30 + pulse * 20)
+    color = (100, 200, 120, alpha)
+
+    halo_surf = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+    pygame.draw.circle(
+        halo_surf,
+        color,
+        (radius, radius),
+        radius
+    )
+
+    surface.blit(halo_surf, (cx - radius, cy - radius))
 
 
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
@@ -561,6 +586,15 @@ def main():
                 if gx == hover_gx and gy == hover_gy:
                     outline_color = (255, 255, 255) if grid[gx][gy] == 0 else (255, 80, 80)
                     draw_iso_outline(screen, gx, gy, offset, outline_color, 3)
+
+                if grid[gx][gy] == "garden" and city().get("harmony", 50) >= 70:
+                    draw_garden_halo(
+                        screen,
+                        gx,
+                        gy,
+                        offset,
+                        pygame.time.get_ticks() / 1000.0
+                    )
 
                 if grid[gx][gy] != 0:
                     draw_building(
