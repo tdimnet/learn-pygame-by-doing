@@ -88,6 +88,15 @@ MILESTONES = [
             "population": city["population"] + 3
         }),
         "message": "Un jardin apporte de la sérénité"
+    },
+    {
+        "id": "harmony_70_time",
+        "condition": lambda city, cities:
+            city.get("harmony_time", 0) >= 30,
+        "reward": lambda city, cities: city.update({
+            "population": city["population"] + 5
+        }),
+        "message": "Ville paisible : la sérénité s'installe"
     }
 ]
 
@@ -101,7 +110,8 @@ def create_empty_city():
         "pop_effect": [[0 for _ in range(GRID_HEIGHT)] for _ in
                        range(GRID_WIDTH)],
         "gold_per_sec": 0,
-        "harmony": 50
+        "harmony": 50,
+        "harmony_time": 0.0
     }
 
 
@@ -438,6 +448,11 @@ def main():
 
                 c["harmony"] = harmony
 
+                if c["harmony"] >= 70:
+                    c["harmony_time"] += 1
+                else:
+                    c["harmony_time"] = max(0.0, c["harmony_time"] - 0.5)
+
                 total_pop_consume = max(0, total_pop_consume - garden_count)
 
                 population = c["population"]
@@ -455,6 +470,12 @@ def main():
                 power_val = c["power"]
                 boost = 1 + (0.2 * power_val)
                 adjusted_gold_prod *= boost
+
+                harmony = c.get("harmony", 50)
+                if harmony >= 70:
+                    adjusted_gold_prod *= 1.10
+                elif harmony <= 30:
+                    adjusted_gold_prod *= 0.90
 
                 population += adjusted_pop_prod
                 if population < 0:
