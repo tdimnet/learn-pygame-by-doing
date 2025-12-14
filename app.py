@@ -234,12 +234,12 @@ def draw_garden_halo(surface, gx, gy, offset, time_sec):
     cx = iso_x + ox
     cy = iso_y + oy - TILE_HEIGHT // 2
 
-    base_radius = 26
+    base_radius = 36
     pulse = (math.sin(time_sec * 1.5) + 1) * 0.5
-    radius = int(base_radius + pulse * 4)
+    radius = int(base_radius + pulse * 6)
 
-    alpha = int(30 + pulse * 20)
-    color = (100, 200, 120, alpha)
+    alpha = int(30 + pulse * 40)
+    color = (100, 220, 140, alpha)
 
     halo_surf = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
     pygame.draw.circle(
