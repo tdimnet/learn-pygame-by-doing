@@ -104,10 +104,11 @@ def create_empty_city():
     }
 
 
-def save_game(cities, current_city, filename="save.json"):
+def save_game(cities, current_city, completed_milestones, filename="save.json"):
     data = {
         "cities": cities,
-        "current_city": current_city
+        "current_city": current_city,
+        "completed_milestones": list(completed_milestones)
     }
     with open (filename, "w") as f:
         json.dump(data, f)
@@ -120,7 +121,22 @@ def load_game(filename="save.json"):
     with open(filename, "r") as f:
         data = json.load(f)
 
-    return data
+    cities = data.get("cities", [])
+    if not isinstance(cities, list):
+        cities = []
+
+    current_city = data.get("current_city", 0)
+    completed_milestones = set(data.get("completed_milestones", []))
+
+    if not cities:
+        cities = [create_empty_city()]
+        current_city = 0
+
+    return {
+        "cities": cities,
+        "current_city": current_city,
+        "completed_milestones": completed_milestones
+    }
 
 
 def draw_resource_bar(surface, gold, population, power):
@@ -272,18 +288,18 @@ def main():
 
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
-    prev_city_button = pygame.Rect(450, 50, 40, 30)
-    next_city_button = pygame.Rect(500, 50, 40, 30)
+    prev_city_button = pygame.Rect(550, 50, 40, 30)
+    next_city_button = pygame.Rect(600, 50, 40, 30)
 
     loaded = load_game()
-    if loaded is not None:
+    if loaded:
         cities = loaded["cities"]
-        current_city = loaded.get("current_city", 0)
-        if not cities:
-            cities = [create_empty_city()]
+        current_city = loaded["current_city"]
+        completed_milestones = loaded["completed_milestones"]
     else:
         cities = [create_empty_city()]
         current_city = 0
+        completed_milestones = set()
 
     idle_timer = 0
 
@@ -300,7 +316,7 @@ def main():
         # Event loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                save_game(cities, current_city)
+                save_game(cities, current_city, completed_milestones)
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
