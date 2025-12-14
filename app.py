@@ -88,8 +88,7 @@ MILESTONES = [
             "population": city["population"] + 3
         }),
         "message": "Un jardin apporte de la sérénité"
-}
-
+    }
 ]
 
 
@@ -101,7 +100,8 @@ def create_empty_city():
         "power": 0,
         "pop_effect": [[0 for _ in range(GRID_HEIGHT)] for _ in
                        range(GRID_WIDTH)],
-        "gold_per_sec": 0
+        "gold_per_sec": 0,
+        "harmony": 50
     }
 
 
@@ -364,6 +364,9 @@ def main():
                 total_pop_consume = 0
 
                 grid = c["grid"]
+                house_count = 0
+                factory_count = 0
+                garden_count = 0
 
                 for gx in range(GRID_WIDTH):
                     for gy in range(GRID_HEIGHT):
@@ -377,14 +380,29 @@ def main():
                         total_power_prod += props["power_production"]
                         total_pop_consume += props["pop_consume"]
 
-                garden_count = sum(
-                    1 for gx in range(GRID_WIDTH)
-                    for gy in range(GRID_HEIGHT)
-                    if grid[gx][gy] == "garden"
-                )
+                        if b == "house":
+                            house_count += 1
+                        elif b == "factory":
+                            factory_count += 1
+                        elif b == "garden":
+                            garden_count += 1
+
+                harmony = c.get("harmony", 50)
+                delta = (
+                    2.0 * garden_count +
+                    0.5 * house_count -
+                    1.0 * factory_count
+                ) * 0.05
+
+                harmony += delta
+                harmony = max(0, min(100, harmony))
+
+                c["harmony"] = harmony
+
+                print(c["harmony"])
+
 
                 total_pop_consume = max(0, total_pop_consume - garden_count)
-
 
                 population = c["population"]
                 if total_pop_consume > 0:
