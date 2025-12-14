@@ -47,7 +47,25 @@ MILESTONES = [
             "gold": city["gold"] + 50
         }),
         "message": "Premiers pas : +50 gold"
-    }
+    },
+    {
+        "id": "houses_5",
+        "condition": lambda city, cities:
+            sum(1 for x in city["grid"] for y in x if y == "house") >= 5,
+        "reward": lambda city, cities: city.update({
+            "population": city["population"] + 2
+        }),
+        "message": "Quartier résidentiel : la population grandit"
+    },
+    {
+        "id": "factories_5",
+        "condition": lambda city, cities:
+            sum(1 for x in city["grid"] for y in x if y == "factory") >= 5,
+        "reward": lambda city, cities: city.update({
+            "gold": city["gold"] + 100
+        }),
+        "message": "Ville active : +100 gold"
+    },
 ]
 
 
