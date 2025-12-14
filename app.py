@@ -78,7 +78,16 @@ MILESTONES = [
         "condition": lambda city, cities:
             city.get("gold_per_sec", 0) >= 20 and len(cities) < 2,
         "reward": lambda city, cities: cities.append(create_empty_city()),
-        "message": "Nouvelle ville débloquée 🌍"
+        "message": "Nouvelle ville débloquée"
+    },
+    {
+        "id": "garden_1",
+        "condition": lambda city, cities:
+            sum(1 for x in city["grid"] for y in x if y == "garden") >= 1,
+        "reward": lambda city, cities: cities.append({
+            city["population"] + 3
+        }),
+        "message": "Un jardin apporte de la sérénité"
     },
 ]
 
@@ -356,6 +365,8 @@ def main():
                     for gy in range(GRID_HEIGHT)
                     if grid[gx][gy] == "garden"
                 )
+
+                total_pop_consume = max(0, total_pop_consume - garden_count)
 
 
                 population = c["population"]
