@@ -66,6 +66,13 @@ MILESTONES = [
         }),
         "message": "Ville active : +100 gold"
     },
+    {
+        "id": "unlock_city_2",
+        "condition": lambda city, cities:
+            city.get("gold_per_sec", 0) >= 20 and len(cities) < 2,
+        "reward": lambda city, cities: cities.append(create_empty_city()),
+        "message": "Nouvelle ville débloquée 🌍"
+    },
 ]
 
 
@@ -75,7 +82,9 @@ def create_empty_city():
         "gold": 50,
         "population": 0,
         "power": 0,
-        "pop_effect": [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
+        "pop_effect": [[0 for _ in range(GRID_HEIGHT)] for _ in
+                       range(GRID_WIDTH)],
+        "gold_per_sec": 0
     }
 
 
@@ -355,7 +364,9 @@ def main():
                 c["population"] = population
 
                 c["gold"] += adjusted_gold_prod
+                c["gold_per_sec"] = adjusted_gold_prod
                 c["power"] = total_power_prod
+
 
         for m in MILESTONES:
             if m["id"] not in completed_milestones:
