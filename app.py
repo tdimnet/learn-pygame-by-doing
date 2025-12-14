@@ -39,6 +39,17 @@ BUILDINGS = {
     }
 }
 
+MILESTONES = [
+    {
+        "id": "gold_100",
+        "condition": lambda city, cities: city["gold"] >= 100,
+        "reward": lambda city, cities: city.update({
+            "gold": city["gold"] + 50
+        }),
+        "message": "Premiers pas : +50 gold"
+    }
+]
+
 
 def create_empty_city():
     return {
@@ -209,6 +220,11 @@ def main():
     ]
     selected_building = "house"
 
+    completed_milestones = set()
+    milestone_popup_timer = 0
+    milestone_popup_text = ""
+
+
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
     prev_city_button = pygame.Rect(450, 50, 40, 30)
@@ -323,6 +339,14 @@ def main():
                 c["gold"] += adjusted_gold_prod
                 c["power"] = total_power_prod
 
+        for m in MILESTONES:
+            if m["id"] not in completed_milestones:
+                if m["condition"](city(), cities):
+                    m["reward"](city(), cities)
+                    completed_milestones.add(m["id"])
+                    milestone_popup_text = m["message"]
+                    milestone_popup_timer = 2.5
+
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
                 if city()["pop_effect"][gx][gy] > 0:
@@ -374,6 +398,20 @@ def main():
                         grid[gx][gy],
                         city()["pop_effect"][gx][gy],
                     )
+
+
+        if milestone_popup_timer > 0:
+            milestone_popup_timer -= dt
+            font = pygame.font.SysFont("arial", 22)
+            text = font.render(
+                milestone_popup_text,
+                True,
+                (255, 255, 100)
+            )
+            screen.blit(
+                text,
+                (SCREEN_WIDTH // 2 - text.get_width() // 2, 120)
+            )
 
         pygame.display.flip()
 
