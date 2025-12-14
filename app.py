@@ -84,11 +84,12 @@ MILESTONES = [
         "id": "garden_1",
         "condition": lambda city, cities:
             sum(1 for x in city["grid"] for y in x if y == "garden") >= 1,
-        "reward": lambda city, cities: cities.append({
-            city["population"] + 3
+        "reward": lambda city, cities: city.update({
+            "population": city["population"] + 3
         }),
         "message": "Un jardin apporte de la sérénité"
-    },
+}
+
 ]
 
 
