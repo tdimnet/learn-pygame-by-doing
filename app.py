@@ -102,6 +102,15 @@ MILESTONES = [
             "population": city["population"] + 5
         }),
         "message": "Ville paisible : la sérénité s'installe"
+    },
+    {
+        "id": "zen_mastery",
+        "condition": lambda city, cities:
+            city.get("harmony80_time", 0) >= 60,
+        "reward": lambda city, cities: globals().__setitem__(
+            "global_gold_bonus", globals().get("global_gold_bonus", 1.0) * 1.05
+        ),
+        "message": "Maitrise zen : la prospérité s'installe"
     }
 ]
 
@@ -116,7 +125,8 @@ def create_empty_city():
                        range(GRID_WIDTH)],
         "gold_per_sec": 0,
         "harmony": 50,
-        "harmony_time": 0.0
+        "harmony_time": 0.0,
+        "harmony80_time": 0.0
     }
 
 
@@ -459,6 +469,7 @@ def main():
                 total_gold_prod = 0
                 total_power_prod = 0
                 total_pop_consume = 0
+                global_gold_bonus = 1.0
 
                 grid = c["grid"]
                 house_count = 0
@@ -501,6 +512,11 @@ def main():
                 else:
                     c["harmony_time"] = max(0.0, c["harmony_time"] - 0.5)
 
+                if c["harmony"] >= 80:
+                    c["harmony80_time"] += 1
+                else:
+                    c["harmony80_time"] = max(0.0, c["harmony80_time"] - 0.5)
+
                 total_pop_consume = max(0, total_pop_consume - garden_count)
 
                 population = c["population"]
@@ -533,6 +549,8 @@ def main():
                 c["gold"] += adjusted_gold_prod
                 c["gold_per_sec"] = adjusted_gold_prod
                 c["power"] = total_power_prod
+
+                adjusted_gold_prod *= global_gold_bonus
 
 
         for m in MILESTONES:
