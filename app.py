@@ -48,7 +48,14 @@ BUILDINGS = {
         "gold_production": 0,
         "power_production": 0,
         "pop_consume": 0,
-    }
+    },
+    "park": {
+        "cost": 80,
+        "pop_production": 1,
+        "gold_production": 0,
+        "power_production": 0,
+        "pop_consume": 0,
+    },
 }
 
 MILESTONES = [
@@ -313,7 +320,8 @@ def draw_building(surface, gx, gy, offset, btype, pop_time=0):
         "house": (50, 150, 255),
         "factory": (200, 60, 60),
         "powerplant": (230, 200, 60),
-        "garden" : (80, 180, 120)
+        "garden" : (80, 180, 120),
+        "park": (60, 160, 100)
     }
     color = colors[btype]
 
@@ -327,6 +335,10 @@ def draw_building(surface, gx, gy, offset, btype, pop_time=0):
         scale = 1.0 + (pop_time / base_duration) * 0.25
     else:
         scale = 1.0
+
+    if btype == "park":
+        building_width = int((TILE_WIDTH // 2) * 1.2)
+        building_height = int(TILE_HEIGHT * 0.8)
 
     building_width = int((TILE_WIDTH // 2) * scale)
     building_height = int(TILE_HEIGHT * scale)
@@ -386,6 +398,7 @@ def main():
         {"type": "factory",    "rect": pygame.Rect(140, 50, 120, 30), "color": (200, 60, 60)},
         {"type": "powerplant", "rect": pygame.Rect(270, 50, 140, 30), "color": (230, 200, 60)},
         {"type": "garden", "rect": pygame.Rect(420, 50, 120, 30), "color": (80, 180, 120)},
+        {"type": "park", "rect": pygame.Rect(550, 50, 120, 30), "color": (60, 160, 100)},
     ]
     selected_building = "house"
 
@@ -397,8 +410,8 @@ def main():
 
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
-    prev_city_button = pygame.Rect(550, 50, 40, 30)
-    next_city_button = pygame.Rect(600, 50, 40, 30)
+    prev_city_button = pygame.Rect(700, 50, 40, 30)
+    next_city_button = pygame.Rect(750, 50, 40, 30)
 
     loaded = load_game()
     if loaded:
@@ -475,6 +488,7 @@ def main():
                 house_count = 0
                 factory_count = 0
                 garden_count = 0
+                park_count = 0
 
                 for gx in range(GRID_WIDTH):
                     for gy in range(GRID_HEIGHT):
@@ -494,12 +508,17 @@ def main():
                             factory_count += 1
                         elif b == "garden":
                             garden_count += 1
+                        elif b == "park":
+                            park_count += 1
+
+                effective_factories = max(0, factory_count - park_count)
 
                 harmony = c.get("harmony", 50)
                 delta = (
                     2.0 * garden_count +
+                    5.0 * park_count +
                     0.5 * house_count -
-                    1.0 * factory_count
+                    1.0 * effective_factories
                 ) * 0.05
 
                 harmony += delta
@@ -606,6 +625,15 @@ def main():
                     draw_iso_outline(screen, gx, gy, offset, outline_color, 3)
 
                 if grid[gx][gy] == "garden" and city().get("harmony", 50) >= 70:
+                    draw_garden_halo(
+                        screen,
+                        gx,
+                        gy,
+                        offset,
+                        pygame.time.get_ticks() / 1000.0
+                    )
+
+                if grid[gx][gy] == "park" and city().get("harmony", 50) >= 75:
                     draw_garden_halo(
                         screen,
                         gx,
