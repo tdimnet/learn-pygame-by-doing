@@ -393,6 +393,7 @@ def main():
     milestone_popup_timer = 0
     milestone_popup_text = ""
 
+    global_gold_bonus = 1.0
 
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
@@ -469,7 +470,6 @@ def main():
                 total_gold_prod = 0
                 total_power_prod = 0
                 total_pop_consume = 0
-                global_gold_bonus = 1.0
 
                 grid = c["grid"]
                 house_count = 0
@@ -546,11 +546,11 @@ def main():
                     population = 0
                 c["population"] = population
 
+                adjusted_gold_prod *= global_gold_bonus
                 c["gold"] += adjusted_gold_prod
                 c["gold_per_sec"] = adjusted_gold_prod
                 c["power"] = total_power_prod
 
-                adjusted_gold_prod *= global_gold_bonus
 
 
         for m in MILESTONES:
