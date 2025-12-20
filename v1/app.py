@@ -175,6 +175,7 @@ def main():
 
     dragging = False
     last_mous_pos = (0, 0)
+    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     zoom = 1.0
 
@@ -209,10 +210,12 @@ def main():
                 if event.button == 1:
                     dragging = True
                     last_mous_pos = event.pos
+                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEALL)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     dragging = False
+                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
             if event.type == pygame.MOUSEMOTION and dragging:
                 mx, my = event.pos
