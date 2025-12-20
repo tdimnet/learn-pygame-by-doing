@@ -207,13 +207,13 @@ def main():
                     show_hover = not show_hover
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if event.button == 3:
                     dragging = True
                     last_mous_pos = event.pos
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEALL)
 
             if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
+                if event.button == 3:
                     dragging = False
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
