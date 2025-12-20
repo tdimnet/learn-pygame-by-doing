@@ -18,10 +18,11 @@ ZOOM_MAX = 2.0
 ZOOM_STEP = 0.1
 
 # Theme
-FOREST_GREEN = (34, 139, 34)
+MAIN_BACKGROUND_COLOR = (34, 139, 34)
+TILE_BACKGROUND_COLOR = (0, 100, 0)
 WHITE = (0, 0, 0)
-WATER_BLUE = (54, 117, 136)
-TAN = (210, 180, 140)
+WATER = (54, 117, 136)
+SAND = (210, 180, 140)
 
 
 def grid_to_iso(gx: int, gy: int, zoom: float) -> tuple[int, int]:
@@ -162,8 +163,6 @@ def generate_sand(map_data):
         map_data[x][y] = "sand"
 
 
-
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -237,20 +236,20 @@ def main():
 
 
         # Draw update
-        screen.fill(FOREST_GREEN)
+        screen.fill(MAIN_BACKGROUND_COLOR)
 
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
                 tile_type = map_data[gx][gy]
 
                 if tile_type == "water":
-                    color = WATER_BLUE
+                    color = WATER
                 elif tile_type == "sand":
-                    color = TAN
+                    color = SAND
                 elif gx == hover_gx and gy == hover_gy and show_hover:
                     color = (200, 200, 50)
                 else:
-                    color = (100, 180, 100)
+                    color = (TILE_BACKGROUND_COLOR)
 
                 draw_tile(
                     surface=screen,
