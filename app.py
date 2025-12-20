@@ -406,6 +406,8 @@ def main():
     milestone_popup_timer = 0
     milestone_popup_text = ""
 
+    observer_mode = False
+
     global_gold_bonus = 1.0
 
     pop_effect = [[0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
@@ -441,7 +443,13 @@ def main():
                 save_game(cities, current_city, completed_milestones)
                 running = False
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_o:
+                    observer_mode = not observer_mode
+
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if observer_mode:
+                    continue
                 clicked_tool = False
                 for btn in tool_buttons:
                     if btn["rect"].collidepoint(mx, my):
@@ -597,7 +605,9 @@ def main():
             int(city()["power"])
         )
         draw_harmony_bar(screen, city().get("harmony", 50))
-        draw_tool_bar(screen, tool_buttons, selected_building)
+
+        if not observer_mode:
+            draw_tool_bar(screen, tool_buttons, selected_building)
 
         pygame.draw.rect(screen, (180, 180, 180), prev_city_button)
         pygame.draw.rect(screen, (180, 180, 180), next_city_button)
