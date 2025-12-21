@@ -1,6 +1,8 @@
+from re import I
 import sys
 import pygame
 import random
+import math
 
 
 SCREEN_WIDTH = 800
@@ -20,6 +22,8 @@ ZOOM_STEP = 0.1
 # Theme
 MAIN_BACKGROUND_COLOR = (34, 139, 34)
 TILE_BACKGROUND_COLOR = (0, 100, 0)
+FOREST_BACKGROUND_COLOR = (1, 50, 32)
+MOUNTAIN_BACKGROUND_COLOR = (100, 65, 23)
 WHITE = (0, 0, 0)
 WATER = (54, 117, 136)
 SAND = (210, 180, 140)
@@ -163,6 +167,43 @@ def generate_sand(map_data):
         map_data[x][y] = "sand"
 
 
+def generate_forest(
+        map_data,
+        forest_count=3,
+        min_radius=3,
+        max_radius=6):
+    width = len(map_data)
+    height = len(map_data[0])
+
+    for _ in range(forest_count):
+        attemps = 0
+        while attemps < 20:
+            cx = random.randint(0, width - 1)
+            cy = random.randint(0, height - 1)
+
+            if map_data[cx][cy] == "grass":
+                break
+            attemps += 1
+        else:
+            continue
+
+        radius = random.randint(min_radius, max_radius)
+
+        for x in range(cx - radius, cx + radius + 1):
+            for y in range(cy - radius, cy + radius + 1):
+                if not (0 <= x < width and 0 <= y < height):
+                    continue
+
+                if map_data[x][y] != "grass":
+                    continue
+
+                dist = math.hypot(x - cx, y - cy)
+                noise = random.uniform(-0.5, 0.8)
+
+                if dist <= radius + noise:
+                    map_data[x][y] = "forest"
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -182,6 +223,7 @@ def main():
     map_data = generate_empty_map(GRID_WIDTH, GRID_HEIGHT)
     generate_river(map_data)
     generate_sand(map_data)
+    generate_forest(map_data)
 
     show_lines = False
     show_hover = False
@@ -249,6 +291,8 @@ def main():
                     color = WATER
                 elif tile_type == "sand":
                     color = SAND
+                elif tile_type == "forest":
+                    color = FOREST_BACKGROUND_COLOR
                 elif gx == hover_gx and gy == hover_gy and show_hover:
                     color = (200, 200, 50)
                 else:
