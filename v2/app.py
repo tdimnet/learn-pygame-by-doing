@@ -26,6 +26,17 @@ def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
     return x, y
 
 
+def screen_to_grid(mx: int, my: int, offset: tuple[int, int]) -> tuple[int, int]:
+    ox, oy = offset
+    mx -= ox
+    my -= oy
+
+    gx = (mx / (TILE_WIDTH / 2) + my / (TILE_HEIGHT / 2)) / 2
+    gy = (my / (TILE_HEIGHT / 2) - mx / (TILE_WIDTH / 2)) / 2
+
+    return int(gx), int(gy)
+
+
 def draw_tile(
         surface: pygame.Surface,
         gx: int,
@@ -83,6 +94,8 @@ def main():
         SCREEN_HEIGHT // 4
     )
 
+    placing_tree = False
+
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
 
@@ -108,6 +121,18 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    placing_tree = not placing_tree
+
+            if event.type == pygame.MOUSEBUTTONDOWN and placing_tree:
+                mx, my = pygame.mouse.get_pos()
+                gx, gy = screen_to_grid(mx, my, offset)
+
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    trees.append((gx, gy))
+                    placing_tree = False
+
         # Idle economy update
 
 
@@ -128,6 +153,20 @@ def main():
                     color=color,
                     offset=offset
                 )
+
+        if placing_tree:
+            mx, my = pygame.mouse.get_pos()
+            gx, gy = screen_to_grid(mx, my, offset)
+
+            if (gx, gy) in iso_cache:
+                iso_x, iso_y = iso_cache[(gx, gy)]
+                px = iso_x + offset[0]
+                py = iso_y + offset[1]
+
+                ghost_rect = tree_sprite.get_rect(midbottom=(px, py))
+                ghost = tree_sprite.copy()
+                ghost.set_alpha(120)
+                screen.blit(ghost, ghost_rect)
 
         for gx, gy in sorted(trees, key=lambda t: t[0] + t[1]):
             iso_x, iso_y = iso_cache[(gx, gy)]
