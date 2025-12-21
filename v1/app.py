@@ -204,6 +204,59 @@ def generate_forest(
                     map_data[x][y] = "forest"
 
 
+def generate_mountains(
+        map_data,
+        mountain_count=1,
+        min_radius=4,
+        max_radius=7):
+    width = len(map_data)
+    height = len(map_data[0])
+
+    for _ in range(mountain_count):
+        attemps = 0
+
+        while attemps < 30:
+            edge = random.choice([
+                "top", "bottom", "left", "right"
+            ])
+
+            if edge == "top":
+                cx = random.randint(0, width - 1)
+                cy = random.randint(0, height // 5)
+            elif edge == "bottom":
+                cx = random.randint(0, width - 1)
+                cy = random.randint(4 * height // 5, height - 1)
+            elif edge == "left":
+                cx = random.randint(0, width // 5)
+                cy = random.randint(0, height - 1)
+            else:
+                cx = random.randint(4 * width // 5, width - 1)
+                cy = random.randint(0, height - 1)
+
+            if map_data[cx][cy] == "grass":
+                break
+
+            attemps += 1
+        else:
+            continue
+
+        radius = random.randint(min_radius, max_radius)
+
+        for x in range(cx - radius, cx + radius + 1):
+            for y in range(cy - radius, cy + radius + 1):
+                if not (0 <= x < width and 0 <= y < height):
+                    continue
+
+                if map_data[x][y] != "grass":
+                    continue
+
+                dist = math.hypot(x - cx, y - cy)
+                noise = random.uniform(-0.6, 0.6)
+            
+                if dist <= radius + noise:
+                    map_data[x][y] = "mountain"
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -224,6 +277,7 @@ def main():
     generate_river(map_data)
     generate_sand(map_data)
     generate_forest(map_data)
+    generate_mountains(map_data)
 
     show_lines = False
     show_hover = False
@@ -293,6 +347,8 @@ def main():
                     color = SAND
                 elif tile_type == "forest":
                     color = FOREST_BACKGROUND_COLOR
+                elif tile_type == "mountain":
+                    color = MOUNTAIN_BACKGROUND_COLOR
                 elif gx == hover_gx and gy == hover_gy and show_hover:
                     color = (200, 200, 50)
                 else:
