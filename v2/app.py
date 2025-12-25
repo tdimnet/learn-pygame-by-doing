@@ -100,6 +100,20 @@ def draw_house(
     surface.blit(sprite, sprite_rect)
 
 
+def load_sprite_trim_largest_component(path: str) -> pygame.Surface:
+    surf = pygame.image.load(path).convert_alpha()
+
+    mask = pygame.mask.from_surface(surf)
+    rects = mask.get_bounding_rects()  # bounding rects des composants connectés
+
+    if not rects:
+        return surf
+
+    # On garde le plus gros composant (maison + base). Les étoiles sont de petits composants.
+    r = max(rects, key=lambda rc: rc.width * rc.height)
+    return surf.subsurface(r).copy()
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -116,7 +130,7 @@ def main():
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
 
-    house_sprite = pygame.image.load("./assets/house.png").convert_alpha()
+    house_sprite = load_sprite_trim_largest_component("./assets/house.png")
     house_sprite = pygame.transform.smoothscale(house_sprite, (128, 96))
 
 
@@ -132,7 +146,7 @@ def main():
     ]
 
     houses = [
-        (3, 4),
+        (2, 2),
         (6, 5)
     ]
 
