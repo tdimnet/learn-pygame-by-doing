@@ -1,4 +1,3 @@
-from re import I
 import sys
 import pygame
 
@@ -18,6 +17,7 @@ TILE_BACKGROUND_COLOR = (0, 100, 0)
 WHITE = (0, 0, 0)
 
 TREE_SPRITE_PATH = "./assets/tree.png"
+HOUSE_SPRITE_PATH = "./assets/house.png"
 
 
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
@@ -83,6 +83,23 @@ def draw_tree(
     surface.blit(sprite, sprite_rect)
 
 
+def draw_house(
+        surface: pygame.Surface,
+        sprite: pygame.Surface,
+        gx: int,
+        gy: int,
+        offset: tuple[int, int],
+        iso_cache: dict) -> None:
+    iso_x, iso_y = iso_cache[(gx, gy)]
+    offset_x, offset_y = offset
+
+    px = iso_x + offset_x
+    py = iso_y + offset_y
+
+    sprite_rect = sprite.get_rect(midbottom=(px, py))
+    surface.blit(sprite, sprite_rect)
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -99,6 +116,9 @@ def main():
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
 
+    house_sprite = pygame.image.load("./assets/house.png").convert_alpha()
+    house_sprite = pygame.transform.smoothscale(house_sprite, (128, 96))
+
 
     iso_cache = {}
     for gx in range(GRID_WIDTH):
@@ -109,6 +129,11 @@ def main():
         (4, 5),
         (6, 3),
         (2, 7)
+    ]
+
+    houses = [
+        (3, 4),
+        (6, 5)
     ]
 
 
@@ -175,6 +200,14 @@ def main():
 
             sprite_rect = tree_sprite.get_rect(midbottom=(px, py))
             screen.blit(tree_sprite, sprite_rect)
+
+        for gx, gy in sorted(houses, key=lambda t: t[0] + t[1]):
+            iso_x, iso_y = iso_cache[(gx, gy)]
+            px = iso_x + offset[0]
+            py = iso_y + offset[1]
+
+            sprite_rect = house_sprite.get_rect(midbottom=(px, py))
+            screen.blit(house_sprite, sprite_rect)
 
         pygame.display.flip()
 
