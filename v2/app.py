@@ -28,11 +28,11 @@ def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
 
 def screen_to_grid(mx: int, my: int, offset: tuple[int, int]) -> tuple[int, int]:
     ox, oy = offset
-    mx -= ox
-    my -= oy
+    x = mx - ox
+    y = my - oy
 
-    gx = (mx / (TILE_WIDTH / 2) + my / (TILE_HEIGHT / 2)) / 2
-    gy = (my / (TILE_HEIGHT / 2) - mx / (TILE_WIDTH / 2)) / 2
+    gx = (y / (TILE_HEIGHT / 2) + x / (TILE_WIDTH / 2)) / 2
+    gy = (y / (TILE_HEIGHT / 2) - x / (TILE_WIDTH / 2)) / 2
 
     return int(gx), int(gy)
 
@@ -97,6 +97,9 @@ def main():
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
+        mx, my = pygame.mouse.get_pos()
+
+        hover_gx, hover_gy = screen_to_grid(mx, my, offset)
 
         # Event loop
         for event in pygame.event.get():
@@ -128,6 +131,9 @@ def main():
                 else:
                     color = (80, 160, 80)
 
+                if gx == hover_gx and gy == hover_gy:
+                    color = (200, 200, 50)
+
                 draw_tile(
                     surface=screen,
                     gx=gx,
@@ -137,13 +143,14 @@ def main():
                 )
 
         if placing_tree:
-            mx, my = pygame.mouse.get_pos()
             gx, gy = screen_to_grid(mx, my, offset)
 
             if (gx, gy) in iso_cache:
                 iso_x, iso_y = iso_cache[(gx, gy)]
                 px = iso_x + offset[0]
-                py = iso_y + offset[1]
+                py = iso_y + offset[1] + TILE_HEIGHT
+
+                print(iso_x, iso_y)
 
                 ghost_rect = tree_sprite.get_rect(midbottom=(px, py))
                 ghost = tree_sprite.copy()
