@@ -114,16 +114,13 @@ def main():
         for gy in range(GRID_HEIGHT):
             iso_cache[(gx, gy)] = grid_to_iso(gx, gy)
 
-    trees = [
-        (4, 5),
-        (6, 3),
-        (2, 7)
-    ]
+    trees = []
     houses = []
     shops = []
     bakeries = []
     parks = []
     squares = []
+    roads = []
 
 
     running = True
@@ -201,6 +198,13 @@ def main():
                 if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
                     squares.append((gx, gy))
                     placing_square = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and placing_road:
+                gx, gy = screen_to_grid(mx, my, offset)
+
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    roads.append((gx, gy))
+                    placing_road = False
 
         # Idle economy update
 
@@ -364,6 +368,14 @@ def main():
 
             sprite_rect = square_sprite.get_rect(midbottom=(px, py))
             screen.blit(square_sprite, sprite_rect)
+
+        for gx, gy in sorted(roads, key=lambda t: t[0] + t[1]):
+            iso_x, iso_y = iso_cache[(gx, gy)]
+            px = iso_x + offset[0]
+            py = iso_y + offset[1] + TILE_HEIGHT
+
+            sprite_rect = road_sprite.get_rect(midbottom=(px, py))
+            screen.blit(road_sprite, sprite_rect)
 
         pygame.display.flip()
 
