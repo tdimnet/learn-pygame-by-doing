@@ -78,6 +78,7 @@ def main():
     placing_house = False
     placing_shop = False
     placing_bakery = False
+    placing_park = False
 
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
@@ -94,6 +95,10 @@ def main():
     bakery_sprite = pygame.transform.smoothscale(bakery_sprite,
                                                 (128, 128))
 
+    park_sprite = pygame.image.load("./assets/park.png").convert_alpha()
+    park_sprite = pygame.transform.smoothscale(park_sprite,
+                                                (128, 128))
+
     iso_cache = {}
     for gx in range(GRID_WIDTH):
         for gy in range(GRID_HEIGHT):
@@ -107,6 +112,7 @@ def main():
     houses = []
     shops = []
     bakeries = []
+    parks = []
 
 
     running = True
@@ -133,6 +139,9 @@ def main():
 
                 if event.key == pygame.K_b:
                     placing_bakery = not placing_bakery
+
+                if event.key == pygame.K_p:
+                    placing_park = not placing_park
 
             if event.type == pygame.MOUSEBUTTONDOWN and placing_tree:
                 gx, gy = screen_to_grid(mx, my, offset)
@@ -161,6 +170,13 @@ def main():
                 if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
                     bakeries.append((gx, gy))
                     placing_bakery = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and placing_park:
+                gx, gy = screen_to_grid(mx, my, offset)
+
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    parks.append((gx, gy))
+                    placing_park = False
 
         # Idle economy update
 
@@ -238,6 +254,19 @@ def main():
                 ghost.set_alpha(120)
                 screen.blit(ghost, ghost_rect)
 
+        if placing_park:
+            gx, gy = screen_to_grid(mx, my, offset)
+
+            if (gx, gy) in iso_cache:
+                iso_x, iso_y = iso_cache[(gx, gy)]
+                px = iso_x + offset[0]
+                py = iso_y + offset[1] + TILE_HEIGHT
+
+                ghost_rect = park_sprite.get_rect(midbottom=(px, py))
+                ghost = park_sprite.copy()
+                ghost.set_alpha(120)
+                screen.blit(ghost, ghost_rect)
+
         for gx, gy in sorted(trees, key=lambda t: t[0] + t[1]):
             iso_x, iso_y = iso_cache[(gx, gy)]
             px = iso_x + offset[0]
@@ -269,6 +298,14 @@ def main():
 
             sprite_rect = bakery_sprite.get_rect(midbottom=(px, py))
             screen.blit(bakery_sprite, sprite_rect)
+
+        for gx, gy in sorted(parks, key=lambda t: t[0] + t[1]):
+            iso_x, iso_y = iso_cache[(gx, gy)]
+            px = iso_x + offset[0]
+            py = iso_y + offset[1] + TILE_HEIGHT
+
+            sprite_rect = park_sprite.get_rect(midbottom=(px, py))
+            screen.blit(park_sprite, sprite_rect)
 
         pygame.display.flip()
 
