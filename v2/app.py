@@ -78,9 +78,13 @@ def main():
     )
 
     placing_tree = False
+    placing_house = False
 
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
+
+    house_sprite = pygame.image.load("./assets/house.png").convert_alpha()
+    house_sprite = pygame.transform.smoothscale(house_sprite, (64, 128))
 
     iso_cache = {}
     for gx in range(GRID_WIDTH):
@@ -109,6 +113,9 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     placing_tree = not placing_tree
+
+                if event.key == pygame.K_h:
+                    placing_house = not placing_house
 
             if event.type == pygame.MOUSEBUTTONDOWN and placing_tree:
                 mx, my = pygame.mouse.get_pos()
@@ -150,10 +157,21 @@ def main():
                 px = iso_x + offset[0]
                 py = iso_y + offset[1] + TILE_HEIGHT
 
-                print(iso_x, iso_y)
-
                 ghost_rect = tree_sprite.get_rect(midbottom=(px, py))
                 ghost = tree_sprite.copy()
+                ghost.set_alpha(120)
+                screen.blit(ghost, ghost_rect)
+
+        if placing_house:
+            gx, gy = screen_to_grid(mx, my, offset)
+
+            if (gx, gy) in iso_cache:
+                iso_x, iso_y = iso_cache[(gx, gy)]
+                px = iso_x + offset[0]
+                py = iso_y + offset[1] + TILE_HEIGHT
+
+                ghost_rect = house_sprite.get_rect(midbottom=(px, py))
+                ghost = house_sprite.copy()
                 ghost.set_alpha(120)
                 screen.blit(ghost, ghost_rect)
 
