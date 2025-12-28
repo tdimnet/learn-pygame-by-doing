@@ -84,7 +84,8 @@ def main():
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
 
     house_sprite = pygame.image.load("./assets/house.png").convert_alpha()
-    house_sprite = pygame.transform.smoothscale(house_sprite, (64, 128))
+    house_sprite = pygame.transform.smoothscale(house_sprite,
+                                                (128, 128))
 
     iso_cache = {}
     for gx in range(GRID_WIDTH):
@@ -96,6 +97,8 @@ def main():
         (6, 3),
         (2, 7)
     ]
+
+    houses = []
 
 
     running = True
@@ -118,12 +121,18 @@ def main():
                     placing_house = not placing_house
 
             if event.type == pygame.MOUSEBUTTONDOWN and placing_tree:
-                mx, my = pygame.mouse.get_pos()
                 gx, gy = screen_to_grid(mx, my, offset)
 
                 if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
                     trees.append((gx, gy))
                     placing_tree = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and placing_house:
+                gx, gy = screen_to_grid(mx, my, offset)
+
+                if 0 <= gx < GRID_WIDTH and 0 <= gy < GRID_HEIGHT:
+                    houses.append((gx, gy))
+                    placing_house = False
 
         # Idle economy update
 
@@ -178,10 +187,18 @@ def main():
         for gx, gy in sorted(trees, key=lambda t: t[0] + t[1]):
             iso_x, iso_y = iso_cache[(gx, gy)]
             px = iso_x + offset[0]
-            py = iso_y + offset[1]
+            py = iso_y + offset[1] + TILE_HEIGHT
 
             sprite_rect = tree_sprite.get_rect(midbottom=(px, py))
             screen.blit(tree_sprite, sprite_rect)
+
+        for gx, gy in sorted(houses, key=lambda t: t[0] + t[1]):
+            iso_x, iso_y = iso_cache[(gx, gy)]
+            px = iso_x + offset[0]
+            py = iso_y + offset[1] + TILE_HEIGHT
+
+            sprite_rect = house_sprite.get_rect(midbottom=(px, py))
+            screen.blit(house_sprite, sprite_rect)
 
         pygame.display.flip()
 
