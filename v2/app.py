@@ -80,6 +80,7 @@ def main():
     placing_bakery = False
     placing_park = False
     placing_square = False
+    placing_road = False
 
     tree_sprite = pygame.image.load("./assets/tree.png").convert_alpha()
     tree_sprite = pygame.transform.smoothscale(tree_sprite, (64, 128))
@@ -103,6 +104,10 @@ def main():
     square_sprite = pygame.image.load("./assets/square.png").convert_alpha()
     square_sprite = pygame.transform.smoothscale(square_sprite,
                                                 (128, 128))
+
+    road_sprite = pygame.image.load("./assets/road.png").convert_alpha()
+    road_sprite = pygame.transform.smoothscale(road_sprite,
+                                                (64, 64))
 
     iso_cache = {}
     for gx in range(GRID_WIDTH):
@@ -151,6 +156,9 @@ def main():
 
                 if event.key == pygame.K_q:
                     placing_square = not placing_square
+
+                if event.key == pygame.K_r:
+                    placing_road = not placing_road
 
             if event.type == pygame.MOUSEBUTTONDOWN and placing_tree:
                 gx, gy = screen_to_grid(mx, my, offset)
@@ -293,6 +301,19 @@ def main():
 
                 ghost_rect = square_sprite.get_rect(midbottom=(px, py))
                 ghost = square_sprite.copy()
+                ghost.set_alpha(120)
+                screen.blit(ghost, ghost_rect)
+
+        if placing_road:
+            gx, gy = screen_to_grid(mx, my, offset)
+
+            if (gx, gy) in iso_cache:
+                iso_x, iso_y = iso_cache[(gx, gy)]
+                px = iso_x + offset[0]
+                py = iso_y + offset[1] + TILE_HEIGHT
+
+                ghost_rect = road_sprite.get_rect(midbottom=(px, py))
+                ghost = road_sprite.copy()
                 ghost.set_alpha(120)
                 screen.blit(ghost, ghost_rect)
 
