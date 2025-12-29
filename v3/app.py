@@ -11,6 +11,8 @@ TILE_HEIGHT = 32
 GRID_WIDTH = 10
 GRID_HEIGHT= 10
 
+HUD_HEIGHT = 64
+
 MAIN_BACKGROUND_COLOR = (34, 139, 34)
 TILE_BACKGROUND_COLOR = (0, 100, 0)
 WHITE = (0, 0, 0)
@@ -49,11 +51,28 @@ def draw_tile(
         1)
 
 
+def draw_hud(
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        mouse_pos: tuple[int, int]) -> None:
+    hud_rect = pygame.Rect(
+        0,
+        SCREEN_HEIGHT - HUD_HEIGHT,
+        SCREEN_WIDTH,
+        HUD_HEIGHT
+    )
+
+    hud_surface = pygame.Surface((SCREEN_WIDTH, HUD_HEIGHT), pygame.SRCALPHA)
+    hud_surface.fill((20, 30, 20, 210))
+    screen.blit(hud_surface, hud_rect.topleft)
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Buildings")
     clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 24)
 
     offset = (
         SCREEN_WIDTH // 2,
@@ -63,6 +82,7 @@ def main():
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
+        mouse_pos = pygame.mouse.get_pos()
         
         # Event loop
         for event in pygame.event.get():
@@ -77,18 +97,10 @@ def main():
         
         for gx in range(GRID_WIDTH):
             for gy in range(GRID_HEIGHT):
-                if (gx + gy) % 2 == 0:
-                    color = (100, 180, 100)
-                else:
-                    color = (80, 160, 80)
+                color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
+                draw_tile(screen, gx, gy, color, offset)
 
-                draw_tile(
-                    surface=screen,
-                    gx=gx,
-                    gy=gy,
-                    color=color,
-                    offset=offset
-                )
+        draw_hud(screen, font, mouse_pos)
                 
         pygame.display.flip()
             
