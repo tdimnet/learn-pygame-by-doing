@@ -52,6 +52,13 @@ def draw_tile(
         1)
 
 
+def draw_build_menu(
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        anim_t: float) -> None:
+    pass
+
+
 def draw_hud(
         screen: pygame.Surface,
         font: pygame.font.Font,
@@ -105,6 +112,10 @@ def main():
     pygame.display.set_caption("Buildings")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
+
+    menu_open = False
+    menu_anim = 0.0
+    menu_anim_speed = 6.0
 
     offset = (
         SCREEN_WIDTH // 2,
