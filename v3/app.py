@@ -15,7 +15,8 @@ HUD_HEIGHT = 64
 
 MAIN_BACKGROUND_COLOR = (34, 139, 34)
 TILE_BACKGROUND_COLOR = (0, 100, 0)
-WHITE = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
@@ -46,7 +47,7 @@ def draw_tile(
         [top, right, bottom, left])
     pygame.draw.polygon(
         surface,
-        WHITE,
+        BLACK,
         [top, right, bottom, left],
         1)
 
@@ -65,6 +66,37 @@ def draw_hud(
     hud_surface = pygame.Surface((SCREEN_WIDTH, HUD_HEIGHT), pygame.SRCALPHA)
     hud_surface.fill((20, 30, 20, 210))
     screen.blit(hud_surface, hud_rect.topleft)
+
+    resources = [
+        ("g", "5000"),
+        ("p", "120"),
+        ("e", "30"),
+    ]
+
+    x = 20
+    for icon, value in resources:
+        text = font.render(f"{icon} {value}", True, WHITE)
+        screen.blit(text, (x, hud_rect.y + 20))
+        x += 120
+
+    buttons = [
+        ("Build", SCREEN_WIDTH - 200),
+        ("Stats", SCREEN_WIDTH - 140),
+        ("Sets", SCREEN_WIDTH - 80)
+    ]
+
+    for label, x in buttons:
+        rect = pygame.Rect(x, hud_rect.y + 12, 48, 40)
+
+        color = (60, 120, 60)
+        if rect.collidepoint(mouse_pos):
+            color = (90, 160, 90)
+
+        pygame.draw.rect(screen, color, rect, border_radius=8)
+
+        txt = font.render(label, True, WHITE)
+        txt_rect = txt.get_rect(center=rect.center)
+        screen.blit(txt, txt_rect)
 
 
 def main():
