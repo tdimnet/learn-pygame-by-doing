@@ -21,6 +21,12 @@ TILE_BACKGROUND_COLOR = (0, 100, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+BUILD_CATEGORIES = {
+    "Resources": ["Farm", "Lumber", "Mine", "Water", "Power"],
+    "Services": ["House", "School", "Hospital"],
+    "Decoration": ["Tree", "Park", "Statue"]
+}
+
 
 def grid_to_iso(gx: int, gy: int) -> tuple[int, int]:
     x = (gx - gy) * (TILE_WIDTH // 2)
@@ -58,7 +64,9 @@ def draw_tile(
 def draw_build_menu(
         screen: pygame.Surface,
         font: pygame.font.Font,
-        anim_t: float) -> None:
+        anim_t: float,
+        active_category: str,
+        mouse_pos: tuple[int, int]) -> dict:
     x = (SCREEN_WIDTH - MENU_WIDTH) // 2
     y_closed = SCREEN_HEIGHT
     y_open = SCREEN_HEIGHT - MENU_HEIGHT - HUD_HEIGHT - 10
@@ -72,28 +80,40 @@ def draw_build_menu(
     title = font.render("Construction", True, WHITE)
     menu_surface.blit(title, (20, 15))
 
-    categories = ["Resources", "Services", "Decoration"]
+    category_rects = {}
     cx = 20
-    for cat in categories:
+    for cat in BUILD_CATEGORIES.keys():
         rect = pygame.Rect(cx, 60, 90, 32)
-        pygame.draw.rect(menu_surface, (70, 120, 70), rect, border_radius=6)
+        category_rects[cat] = rect
+
+        color = (90, 160, 90) if cat == active_category else (60, 120, 60)
+        pygame.draw.rect(menu_surface, color, rect, border_radius=6)
+
         txt = font.render(cat, True, WHITE)
-        txt_rect = txt.get_rect(center=rect.center)
-        menu_surface.blit(txt, txt_rect)
+        menu_surface.blit(txt, txt.get_rect(center=rect.center))
         cx += 100
 
+    items = BUILD_CATEGORIES[active_category]
     start_y = 120
-    for i in range(6):
+
+    for i, name in enumerate(items):
         tx = 30 + (i % 3) * 90
         ty = start_y + (i // 3) * 90
-        pygame.draw.rect(
-            menu_surface,
-            (80, 160, 80),
-            (tx, ty, 64, 64),
-            border_radius=8
-        )
+
+        tile_rect = pygame.Rect(tx, ty, 64, 64)
+        pygame.draw.rect(menu_surface, (80, 160, 80), tile_rect,
+                         border_radius=8)
+
+        label = font.render(name, True, WHITE)
+        menu_surface.blit(label, (tx, ty + 68))
+
 
     screen.blit(menu_surface, (x, y))
+
+    return {
+        cat: pygame.Rect(x + r.x, y + r.y, r.w, r.h)
+        for cat, r in category_rects.items()
+    }
 
 
 def draw_hud(
@@ -159,6 +179,8 @@ def main():
     menu_anim_speed = 6.0
 
     hud_buttons = None
+    menu_buttons = {}
+    active_category = "Resources"
 
     offset = (
         SCREEN_WIDTH // 2,
@@ -179,6 +201,12 @@ def main():
                 if (hud_buttons is not None and
                     hud_buttons["build"].collidepoint(mouse_pos)):
                         menu_open = not menu_open
+
+                if menu_open:
+                    for cat, rect in menu_buttons.items():
+                        if rect.collidepoint(mouse_pos):
+                            active_category = cat
+
                
         # Idle economy update
 
@@ -198,7 +226,7 @@ def main():
             menu_anim = max(0.0, menu_anim - dt * menu_anim_speed)
 
         if menu_anim > 0:
-            draw_build_menu(screen, font, menu_anim)
+            menu_buttons = draw_build_menu(screen, font, menu_anim, active_category, mouse_pos)
 
 
         hud_buttons = draw_hud(screen, font, mouse_pos)
