@@ -13,6 +13,9 @@ GRID_HEIGHT= 10
 
 HUD_HEIGHT = 64
 
+MENU_WIDTH = 320
+MENU_HEIGHT = 360
+
 MAIN_BACKGROUND_COLOR = (34, 139, 34)
 TILE_BACKGROUND_COLOR = (0, 100, 0)
 WHITE = (255, 255, 255)
@@ -56,13 +59,27 @@ def draw_build_menu(
         screen: pygame.Surface,
         font: pygame.font.Font,
         anim_t: float) -> None:
-    pass
+    x = (SCREEN_WIDTH - MENU_WIDTH) // 2
+    y_closed = SCREEN_HEIGHT
+    y_open = SCREEN_HEIGHT - MENU_HEIGHT - HUD_HEIGHT - 10
+
+    y = y_closed + (y_open - y_closed) * anim_t
+    alpha = int(255 * anim_t)
+
+    menu_surface = pygame.Surface((MENU_WIDTH, MENU_HEIGHT), pygame.SRCALPHA)
+    menu_surface.fill((30, 40, 30, alpha))
+
+    title = font.render("Construction", True, WHITE)
+    menu_surface.blit(title, (20, 15))
+
+
+    screen.blit(menu_surface, (x, y))
 
 
 def draw_hud(
         screen: pygame.Surface,
         font: pygame.font.Font,
-        mouse_pos: tuple[int, int]) -> None:
+        mouse_pos: tuple[int, int]) -> dict:
     hud_rect = pygame.Rect(
         0,
         SCREEN_HEIGHT - HUD_HEIGHT,
@@ -105,6 +122,10 @@ def draw_hud(
         txt_rect = txt.get_rect(center=rect.center)
         screen.blit(txt, txt_rect)
 
+    return {
+        "build": pygame.Rect(SCREEN_WIDTH - 200, hud_rect.y + 12, 48, 40)
+    }
+
 
 def main():
     pygame.init()
@@ -116,6 +137,8 @@ def main():
     menu_open = False
     menu_anim = 0.0
     menu_anim_speed = 6.0
+
+    hud_buttons = None
 
     offset = (
         SCREEN_WIDTH // 2,
@@ -131,6 +154,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if (hud_buttons is not None and
+                    hud_buttons["build"].collidepoint(mouse_pos)):
+                        menu_open = not menu_open
                
         # Idle economy update
 
@@ -143,7 +171,18 @@ def main():
                 color = (100, 180, 100) if (gx + gy) % 2 == 0 else (80, 160, 80)
                 draw_tile(screen, gx, gy, color, offset)
 
-        draw_hud(screen, font, mouse_pos)
+
+        if menu_open:
+            menu_anim = min(1.0, menu_anim + dt * menu_anim_speed)
+        else:
+            menu_anim = max(0.0, menu_anim - dt * menu_anim_speed)
+
+        if menu_anim > 0:
+            draw_build_menu(screen, font, menu_anim)
+
+
+        hud_buttons = draw_hud(screen, font, mouse_pos)
+
                 
         pygame.display.flip()
             
