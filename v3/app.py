@@ -72,6 +72,26 @@ def draw_build_menu(
     title = font.render("Construction", True, WHITE)
     menu_surface.blit(title, (20, 15))
 
+    categories = ["Resources", "Services", "Decoration"]
+    cx = 20
+    for cat in categories:
+        rect = pygame.Rect(cx, 60, 90, 32)
+        pygame.draw.rect(menu_surface, (70, 120, 70), rect, border_radius=6)
+        txt = font.render(cat, True, WHITE)
+        txt_rect = txt.get_rect(center=rect.center)
+        menu_surface.blit(txt, txt_rect)
+        cx += 100
+
+    start_y = 120
+    for i in range(6):
+        tx = 30 + (i % 3) * 90
+        ty = start_y + (i // 3) * 90
+        pygame.draw.rect(
+            menu_surface,
+            (80, 160, 80),
+            (tx, ty, 64, 64),
+            border_radius=8
+        )
 
     screen.blit(menu_surface, (x, y))
 
