@@ -114,9 +114,6 @@ def draw_build_menu(
     content_width = MENU_WIDTH
     slide = int(content_width * (1 - category_anim))
 
-    print(previous_category)
-    print(active_category)
-
     if previous_category:
         draw_items(
             menu_surface,
@@ -125,12 +122,22 @@ def draw_build_menu(
             -slide
         )
 
-    draw_items(
-        menu_surface,
-        font,
-        BUILD_CATEGORIES[active_category],
-        content_width - slide
-    )
+    if category_anim < 1.0:
+        # animation en cours
+        draw_items(
+            menu_surface,
+            font,
+            BUILD_CATEGORIES[active_category],
+            content_width - slide
+        )
+    else:
+        # état stable → pas de décalage
+        draw_items(
+            menu_surface,
+            font,
+            BUILD_CATEGORIES[active_category],
+            0
+        )
 
     screen.blit(menu_surface, (x, y))
 
@@ -206,7 +213,7 @@ def main():
     menu_buttons = {}
     
     active_category = "Resources"
-    previous_category = None
+    previous_category = ""
     category_anim = 1.0
     category_anim_speed = 8.0
 
@@ -263,6 +270,9 @@ def main():
 
         if category_anim < 1.0:
             category_anim = min(1.0, category_anim + dt * category_anim_speed)
+
+        if category_anim == 1.0:
+            previous_category = ""
 
 
         hud_buttons = draw_hud(screen, font, mouse_pos)
