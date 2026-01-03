@@ -156,6 +156,55 @@ def draw_build_menu(
     )
 
 
+def draw_stats_menu(
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        anim_t: float) -> pygame.Rect:
+    x = (SCREEN_WIDTH - MENU_WIDTH) // 2
+    y_closed = SCREEN_HEIGHT
+    y_open = SCREEN_HEIGHT - MENU_HEIGHT - HUD_HEIGHT - 10
+
+    y = y_closed + (y_open - y_closed) * anim_t
+    alpha = int(255 * anim_t)
+
+    menu_surface = pygame.Surface((MENU_WIDTH, MENU_HEIGHT), pygame.SRCALPHA)
+    menu_surface.fill((30, 40, 30, alpha))
+
+    title = font.render("Construction", True, WHITE)
+    menu_surface.blit(title, (20, 15))
+
+    # Add stuff
+
+    # Tabs
+    tabs = ["Population", "Economy", "Resources"]
+    cx = 20
+    for tab in tabs:
+        rect = pygame.Rect(cx, 60, 90, 32)
+        pygame.draw.rect(menu_surface, (60, 120, 60), rect, border_radius=6)
+        txt = font.render(tab, True, WHITE)
+        menu_surface.blit(txt, txt.get_rect(center=rect.center))
+        cx += 100
+
+    # Fake stats
+    stats = [
+        ("Population", "120 (+30)"),
+        ("Jobs", "41 / 100"),
+        ("Income", "+12 / min"),
+        ("Power", "30 / 50"),
+    ]
+
+    y_stats = 120
+    for label, value in stats:
+        txt = font.render(f"{label} : {value}", True, WHITE)
+        menu_surface.blit(txt, (30, y_stats))
+        y_stats += 40
+
+    menu_rect = pygame.Rect(x, y, MENU_WIDTH, MENU_HEIGHT)
+    screen.blit(menu_surface, (x, y))
+
+    return menu_rect
+
+
 def draw_hud(
         screen: pygame.Surface,
         font: pygame.font.Font,
@@ -203,7 +252,8 @@ def draw_hud(
         screen.blit(txt, txt_rect)
 
     return {
-        "build": pygame.Rect(SCREEN_WIDTH - 200, hud_rect.y + 12, 48, 40)
+        "build": pygame.Rect(SCREEN_WIDTH - 200, hud_rect.y + 12, 48, 40),
+        "stats": pygame.Rect(SCREEN_WIDTH - 140, hud_rect.y + 12, 48, 40)
     }
 
 
@@ -215,9 +265,9 @@ def main():
     font = pygame.font.SysFont(None, 24)
 
     menu_rect = None
-    menu_open = False
     menu_anim = 0.0
     menu_anim_speed = 6.0
+    current_menu = None
 
     hud_buttons = None
     menu_buttons, item_buttons = {}, {}
@@ -246,11 +296,21 @@ def main():
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if (hud_buttons is not None and
-                    hud_buttons["build"].collidepoint(mouse_pos)):
-                        menu_open = not menu_open
+                if hud_buttons is not None:
+                    if hud_buttons["build"].collidepoint(mouse_pos):
+                        current_menu = "build" if current_menu != "build" else None
 
-                if menu_open and category_anim == 1.0:
+                    elif hud_buttons["stats"].collidepoint(mouse_pos):
+                        current_menu = "stats" if current_menu != "stats" else None
+
+                    elif current_menu and menu_rect and not menu_rect.collidepoint(mouse_pos):
+                        # clic hors menu (et pas sur les boutons HUD)
+                        if (not hud_buttons["build"].collidepoint(mouse_pos)
+                            and not hud_buttons["stats"].collidepoint(mouse_pos)):
+                            current_menu = None
+
+
+                if current_menu and category_anim == 1.0:
                     for cat, rect in menu_buttons.items():
                         if (rect.collidepoint(mouse_pos) and cat !=
                             active_category):
@@ -262,12 +322,8 @@ def main():
                         if rect.collidepoint(mouse_pos):
                             build_mode = True
                             selected_building = name
-                            menu_open = False
+                            current_menu = None
 
-                if (menu_open and menu_rect and not
-                    menu_rect.collidepoint(mouse_pos)):
-                    if not hud_buttons["build"].collidepoint(mouse_pos):
-                        menu_open = False
 
                
         # Idle economy update
@@ -282,21 +338,31 @@ def main():
                 draw_tile(screen, gx, gy, color, offset)
 
 
-        if menu_open:
+        print(current_menu)
+
+        if current_menu:
             menu_anim = min(1.0, menu_anim + dt * menu_anim_speed)
         else:
             menu_anim = max(0.0, menu_anim - dt * menu_anim_speed)
 
         if menu_anim > 0:
-            menu_buttons, item_buttons, menu_rect = draw_build_menu(screen, font, menu_anim,
+            if current_menu == "build":
+                menu_buttons, item_buttons, menu_rect = draw_build_menu(screen, font, menu_anim,
                                            active_category, previous_category,
                                            category_anim)
+            elif current_menu == "stats":
+                menu_rect = draw_stats_menu(screen, font, menu_anim)
 
         if category_anim < 1.0:
             category_anim = min(1.0, category_anim + dt * category_anim_speed)
 
         if category_anim == 1.0:
             previous_category = ""
+
+        if menu_anim == 0.0:
+            menu_rect = None
+            menu_buttons.clear()
+            item_buttons.clear()
 
 
         hud_buttons = draw_hud(screen, font, mouse_pos)
