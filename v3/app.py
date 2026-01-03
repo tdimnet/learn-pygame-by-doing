@@ -338,8 +338,6 @@ def main():
                 draw_tile(screen, gx, gy, color, offset)
 
 
-        print(current_menu)
-
         if current_menu:
             menu_anim = min(1.0, menu_anim + dt * menu_anim_speed)
         else:
