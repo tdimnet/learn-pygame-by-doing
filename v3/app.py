@@ -144,7 +144,7 @@ def draw_build_menu(
             0
         )
 
-
+    menu_rect = pygame.Rect(x, y, MENU_WIDTH, MENU_HEIGHT)
     screen.blit(menu_surface, (x, y))
 
     return (
@@ -152,6 +152,7 @@ def draw_build_menu(
         for cat, r in category_rects.items()},
         {name: pygame.Rect(x + r.x, y + r.y, r.w, r.h)
         for name, r in item_buttons.items()},
+        menu_rect
     )
 
 
@@ -213,6 +214,7 @@ def main():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
 
+    menu_rect = None
     menu_open = False
     menu_anim = 0.0
     menu_anim_speed = 6.0
@@ -262,10 +264,13 @@ def main():
                             selected_building = name
                             menu_open = False
 
+                if (menu_open and menu_rect and not
+                    menu_rect.collidepoint(mouse_pos)):
+                    if not hud_buttons["build"].collidepoint(mouse_pos):
+                        menu_open = False
+
                
         # Idle economy update
-
-        print(selected_building)
 
 
         # Draw update
@@ -283,7 +288,7 @@ def main():
             menu_anim = max(0.0, menu_anim - dt * menu_anim_speed)
 
         if menu_anim > 0:
-            menu_buttons, item_buttons = draw_build_menu(screen, font, menu_anim,
+            menu_buttons, item_buttons, menu_rect = draw_build_menu(screen, font, menu_anim,
                                            active_category, previous_category,
                                            category_anim)
 
