@@ -15,3 +15,9 @@ class EventManager:
             if event.type == pygame.QUIT:
                 self.quit = True
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.type == 1:
+                self.mouse_down = True
+
+
+        self.mouse_pos = pygame.mouse.get_pos()
+
