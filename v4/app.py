@@ -1,27 +1,12 @@
-import sys
 import pygame
-
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+from core.game import Game
 
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Buildings")
-    clock = pygame.time.Clock()
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        screen.fill((255, 255, 255))
-
+    game = Game()
+    game.run()
     pygame.quit()
-    sys.exit()
 
 
 if __name__ == "__main__":
