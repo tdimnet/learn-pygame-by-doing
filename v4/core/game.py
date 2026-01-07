@@ -3,6 +3,8 @@ import pygame
 from core.clock import GameClock
 from core.events import EventManager
 
+from world.world import World
+from ui.hud import HUD
 from render.renderer import Renderer
 
 
@@ -14,6 +16,8 @@ class Game:
         self.clock = GameClock()
         self.events = EventManager()
 
+        self.world = World()
+        self.hud = HUD()
         self.renderer = Renderer(self.screen)
 
         self.running = True
@@ -30,9 +34,12 @@ class Game:
             self.draw()
 
     def update(self, dt: float):
-        pass
+        self.world.update(dt)
+        self.hud.update(dt, self.events)
 
     def draw(self):
         self.renderer.clear()
+        self.renderer.draw_world(self.world)
+        self.renderer.draw_ui(self.hud)
         pygame.display.flip()
 
