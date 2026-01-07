@@ -16,7 +16,7 @@ class Game:
 
         self.clock = GameClock()
         self.events = EventManager()
-        self.profiler = Profiler(enabled=True)
+        self.profiler = Profiler(enabled=False)
 
         self.world = World()
         self.hud = HUD()
@@ -60,5 +60,7 @@ class Game:
 
         with self.profiler.section("draw/ui"):
             self.renderer.draw_ui(self.hud)
+
+        self.hud.draw_profiler(self.screen, self.profiler)
 
         pygame.display.flip()
