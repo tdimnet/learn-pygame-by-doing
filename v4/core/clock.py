@@ -8,4 +8,3 @@ class GameClock:
 
     def tick(self) -> float:
         return self.clock.tick(self.fps) / 1000.0
-

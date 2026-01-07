@@ -8,3 +8,9 @@ class Renderer:
     def clear(self):
         self.screen.fill((30, 30, 30))
 
+    def draw_world(self, world):
+        for entity in world.entities:
+            entity.draw(self.screen)
+
+    def draw_ui(self, hud):
+        hud.draw(self.screen)
