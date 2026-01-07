@@ -14,3 +14,6 @@ class Renderer:
 
     def draw_ui(self, hud):
         hud.draw(self.screen)
+
+        if hasattr(hud, "draw_profiler") and hasattr(hud, "profiler_ref"):
+            hud.draw_profiler((self.screen, hud.profiler_ref))
