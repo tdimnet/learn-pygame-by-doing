@@ -11,7 +11,7 @@ class MapRenderer:
     def draw_tile(self, screen, gx, gy, color, offset, zoom, show_lines):
         ix, iy = self.iso.grid_to_iso(gx, gy, zoom)
         cx = ix + offset[0]
-        cy = yx + offset[1]
+        cy = iy + offset[1]
 
         tw = self.iso.title_width * zoom
         th = self.iso.title_height * zoom
@@ -29,8 +29,9 @@ class MapRenderer:
 
     def draw(self, screen, game_map, offset, zoom, show_lines=False,
              hover=None, show_hover=False):
-        for gx in range(game_map.width):
-            for gy in range(game_map.height):
+
+        for gy in range(game_map.height):
+            for gx in range(game_map.width):
                 tile_type = game_map.tiles[gx][gy]
                 color = self.colors.get(tile_type, (0, 100, 0))
 

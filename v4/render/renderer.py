@@ -20,11 +20,11 @@ class Renderer:
             self.map_renderer = MapRenderer(world.iso, self.colors)
 
         self.map_renderer.draw(
-            self.screen,
-            world.map,
-            world.map_offset,
-            world.map_offset,
-            False
+            screen=self.screen,
+            game_map=world.map,
+            offset=world.map_offset,
+            zoom=world.map_zoom,
+            show_lines=False,
         )
 
     def draw_ui(self, hud):

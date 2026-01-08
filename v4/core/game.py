@@ -11,7 +11,7 @@ from render.renderer import Renderer
 
 class Game:
     def __init__(self) -> None:
-        self.screen = pygame.display.set_mode((1280, 800))
+        self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Buildings")
 
         self.clock = GameClock()
