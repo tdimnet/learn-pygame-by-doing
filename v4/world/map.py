@@ -13,7 +13,7 @@ class Map:
         self.tiles: List[List[Tile]] = [["grass" for _ in range(height)] for _
                                         in range(width)]
 
-    def generated(self):
+    def generate(self):
         generate_river(self.tiles)
 
 

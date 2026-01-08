@@ -1,16 +1,31 @@
 import pygame
 
+from render.map_renderer import MapRenderer
+
 
 class Renderer:
     def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
+        self.colors = {
+            "grass": (0, 100, 0),
+            "water": (54, 117, 136)
+        }
+        self.map_renderer = None
 
     def clear(self):
         self.screen.fill((30, 30, 30))
 
     def draw_world(self, world):
-        for entity in world.entities:
-            entity.draw(self.screen)
+        if self.map_renderer is None:
+            self.map_renderer = MapRenderer(world.iso, self.colors)
+
+        self.map_renderer.draw(
+            self.screen,
+            world.map,
+            world.map_offset,
+            world.map_offset,
+            False
+        )
 
     def draw_ui(self, hud):
         hud.draw(self.screen)
