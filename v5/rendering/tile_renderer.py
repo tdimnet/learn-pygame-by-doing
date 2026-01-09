@@ -62,3 +62,25 @@ class TileRenderer:
                 [top, right, bottom, left],
                 1
             )
+
+    def draw_terrain(
+            self,
+            surface: pygame.Surface,
+            terrain: list[list[str]],
+            visible_tiles: list[tuple[int, int]],
+            camera_offset_x: int,
+            camera_offset_y: int,
+            zoom: float,
+            show_grid: bool = True) -> None:
+        for gx, gy in visible_tiles:
+            terrain_type = terrain[gx][gy]
+
+            self.draw_tile(
+                surface,
+                gx, gy,
+                terrain_type,
+                camera_offset_x,
+                camera_offset_y,
+                zoom,
+                show_grid
+            )
