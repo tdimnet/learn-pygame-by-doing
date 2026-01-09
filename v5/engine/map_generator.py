@@ -63,5 +63,23 @@ def generate_river(
             x = max(radius + 1, min(width - radius - 2, x))
 
 
-def generate_sand() -> None:
-    pass
+def generate_sand(map_data: list[list[str]]) -> None:
+    width = len(map_data)
+    height = len(map_data[0])
+
+    to_sand = []
+
+    for x in range(width):
+        for y in range(height):
+            if map_data[x][y] != "grass":
+                continue
+
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    if map_data[nx][ny] == "water":
+                        to_sand.append((x, y))
+                        break
+
+    for x, y in to_sand:
+        map_data[x][y] = "sand"
