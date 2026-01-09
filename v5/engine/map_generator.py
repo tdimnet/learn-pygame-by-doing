@@ -83,3 +83,11 @@ def generate_sand(map_data: list[list[str]]) -> None:
 
     for x, y in to_sand:
         map_data[x][y] = "sand"
+
+
+def generate_forest(
+        map_data: list[list[str]],
+        forest_count: int = FOREST_COUNT,
+        min_radius: int = FOREST_MIN_RADIUS,
+        max_radius: int = FOREST_MAX_RADIUS) -> None:
+    pass
