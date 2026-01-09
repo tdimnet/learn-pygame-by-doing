@@ -90,4 +90,38 @@ def generate_forest(
         forest_count: int = FOREST_COUNT,
         min_radius: int = FOREST_MIN_RADIUS,
         max_radius: int = FOREST_MAX_RADIUS) -> None:
+    width = len(map_data)
+    height = len(map_data[0])
+
+    for _ in range(forest_count):
+        attempts = 0
+
+        while attempts < 20:
+            cx = random.randint(0, width - 1)
+            cy = random.randint(0, height - 1)
+
+            if map_data[cx][cy] == "grass":
+                break
+            attempts += 1
+        else:
+            continue
+
+        radius = random.randint(min_radius, max_radius)
+
+        for x in range(cx - radius, cx + radius + 1):
+            for y in range(cy - radius, cy + radius + 1):
+                if not (0 <= x < width and 0 <= y < height):
+                    continue
+
+                if map_data[x][y] != "grass":
+                    continue
+
+                dist = math.hypot(x - cx, y - cy)
+                noise = random.uniform(-0.5, 0.8)
+
+                if dist <= radius + noise:
+                    map_data[x][y] = "forest"
+
+
+def generate_mountains():
     pass
