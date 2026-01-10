@@ -13,6 +13,9 @@ class HUD:
 
         self.height = 120
 
+        self.top_height = 70
+        self.bottom_height = 60
+
         self.buttons = {}
 
     def draw(
@@ -24,10 +27,9 @@ class HUD:
             harmony: float,
             mouse_pos: tuple[int, int],
             active_menu: str = None) -> dict:
-        hud_rect = pygame.Rect(0, 0, SCREEN_WIDTH, self.height)
-        hud_surface = pygame.Surface((SCREEN_WIDTH, self.height), pygame.SRCALPHA)
-        hud_surface.fill((*COLOR_UI_BG, 210))
-        surface.blit(hud_surface, (0, 0))
+        top_surface = pygame.Surface((SCREEN_WIDTH, self.top_height), pygame.SRCALPHA)
+        top_surface.fill((*COLOR_UI_BG, 210))
+        surface.blit(top_surface, (0, 0))
 
         gold_text = self.font.render(f"Gold: {gold}", True, COLOR_UI_TEXT)
         pop_text = self.font.render(f"Population: {population}", True, COLOR_UI_TEXT)
@@ -38,10 +40,9 @@ class HUD:
         surface.blit(power_text, (380, 15))
 
         harmony_x = 20
-        harmony_y = 50
+        harmony_y = 45
         harmony_width = 300
         harmony_height = 12
-
         pygame.draw.rect(
             surface,
             (40, 40, 40),
@@ -53,7 +54,7 @@ class HUD:
         fill_width = int((harmony / 100) * harmony_width)
 
         if harmony >= 70:
-            harmony_color = (100, 200, 100)
+            harmony_color = (100, 200, 120)
         elif harmony >= 40:
             harmony_color = (200, 200, 120)
         else:
@@ -71,10 +72,54 @@ class HUD:
             True,
             COLOR_UI_TEXT
         )
-        surface.blit(
-            harmony_text,
-            (harmony_x + harmony_width + 10, harmony_y - 2)
+        surface.blit(harmony_text, (harmony_x + harmony_width + 10, harmony_y - 2))
+
+        # Bottom bar
+        bottom_y = SCREEN_HEIGHT - self.bottom_height
+
+        bottom_surface = pygame.Surface(
+            (SCREEN_WIDTH, self.bottom_height),
+            pygame.SRCALPHA
         )
+        bottom_surface.fill((*COLOR_UI_BG, 210))
+        surface.blit(bottom_surface, (0, bottom_y))
 
+        button_width = 80
+        button_height = 40
+        button_spacing = 10
+        button_y = bottom_y + (self.bottom_height - button_height) // 2
 
-        return {}
+        build_x = SCREEN_WIDTH - 200
+        build_rect = pygame.Rect(build_x, button_y, button_width, button_height)
+
+        stats_x = SCREEN_WIDTH - 110
+        stats_rect = pygame.Rect(stats_x, button_y, button_width, button_height)
+
+        if active_menu == "build":
+            build_color = COLOR_BUTTON_SELECTED
+        elif build_rect.collidepoint(mouse_pos):
+            build_color = COLOR_BUTTON_HOVER
+        else:
+            build_color = COLOR_BUTTON_NORMAL
+
+        pygame.draw.rect(surface, build_color, build_rect, border_radius=8)
+        build_text = self.font.render("Build", True, COLOR_UI_TEXT)
+        build_rect_text = build_text.get_rect(center=build_rect.center)
+        surface.blit(build_text, build_rect_text)
+
+        if active_menu == "stats":
+            stats_color = COLOR_BUTTON_SELECTED
+        elif stats_rect.collidepoint(mouse_pos):
+            stats_color = COLOR_BUTTON_HOVER
+        else:
+            stats_color = COLOR_BUTTON_NORMAL
+
+        pygame.draw.rect(surface, stats_color, stats_rect, border_radius=8)
+        stats_text = self.font.render("Stats", True, COLOR_UI_TEXT)
+        stats_rect_text = stats_text.get_rect(center=stats_rect.center)
+        surface.blit(stats_text, stats_rect_text)
+
+        return {
+            "build": build_rect,
+            "stats": stats_rect
+        }
