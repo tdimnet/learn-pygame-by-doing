@@ -62,8 +62,9 @@ def main() -> None:
                     show_hover = not show_hover
                     print(f"Hover highlight: {'ON' if show_hover else 'OFF'}")
 
-            if event.type == pygame.MOUSEBUTTONDOWN and event.type == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if hud.buttons.get("build") and hud.buttons["build"].collidepoint(mx, my):
+                    print("====")
                     current_menu = "build" if current_menu != "build" else None
                     selected_building = None
 
@@ -116,9 +117,9 @@ def main() -> None:
         zoom_text = font.render(f"Zoom: {camera.zoom:.2f}", True, (255, 255, 255))
         tiles_text = font.render(f"Tiles drawn: {len(visible_tiles)}/{GRID_WIDTH * GRID_HEIGHT}", True, (255, 255, 255))
 
-        screen.blit(fps_text, (10, 10))
-        screen.blit(zoom_text, (10, 30))
-        screen.blit(tiles_text, (10, 50))
+        screen.blit(fps_text, (10, 80))
+        screen.blit(zoom_text, (10, 100))
+        screen.blit(tiles_text, (10, 120))
 
         if show_hover and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
             hover_text = font.render(

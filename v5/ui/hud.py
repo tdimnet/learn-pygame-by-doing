@@ -119,7 +119,9 @@ class HUD:
         stats_rect_text = stats_text.get_rect(center=stats_rect.center)
         surface.blit(stats_text, stats_rect_text)
 
-        return {
+        self.buttons = {
             "build": build_rect,
             "stats": stats_rect
         }
+
+        return self.buttons
