@@ -85,6 +85,8 @@ def main() -> None:
 
             camera.handle_event(event)
 
+        build_menu.update(dt, current_menu == "build")
+
         screen.fill((34, 139, 34))
 
         visible_tiles = camera.get_visible_tiles(GRID_WIDTH, GRID_HEIGHT)
@@ -125,6 +127,26 @@ def main() -> None:
                 (255, 255, 255)
             )
             screen.blit(hover_text, (10, 70))
+
+        hud.draw(
+            screen,
+            mock_gold,
+            mock_population,
+            mock_power,
+            mock_harmony,
+            (mx, my),
+            current_menu
+        )
+
+        build_menu.draw(screen, (mx, my))
+
+        if selected_building:
+            indicator_text = font.render(
+                f"Sélectionné : {selected_building}",
+                True,
+                (255, 255, 255)
+            )
+            screen.blit(indicator_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
 
         pygame.display.flip()
 
