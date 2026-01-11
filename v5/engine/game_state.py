@@ -23,7 +23,72 @@ class GameState:
         self.idle_timer = 0.0
 
     def _update_economy(self):
-        pass
+        house_count = self.grid.count_buildings("house")
+        factory_count = self.grid.count_buildings("factory")
+        powerplant_count = self.grid.count_buildings("powerplant")
+        garden_count = self.grid.count_buildings("garden")
+        park_count = self.grid.count_buildings("park")
+
+        total_pop_prod = 0
+        total_gold_prod = 0
+        total_power_prod = 0
+        total_pop_consume = 0
+
+        for x in range(self.grid.width):
+            for y in range(self.grid.height):
+                building = self.grid.buildings[x][y]
+                if building is None:
+                    continue
+
+                props = BUILDINGS[building]
+                total_pop_prod += props["pop_production"]
+                total_gold_prod += props["gold_production"]
+                total_power_prod += props["power_production"]
+                total_pop_consume += props["pop_consume"]
+
+        effective_factories = max(0, factory_count - park_count)
+
+        harmony_delta = (
+            2.0 * garden_count +
+            5.0 * park_count +
+            0.5 * house_count -
+            1.0 * effective_factories
+        ) * 0.05
+
+        self.harmony += harmony_delta
+        self.harmony = max(0.0, min(100.0, self.harmony))
+
+        if self.harmony >= 70:
+            self.harmony_time += 1
+        else:
+            self.harmony_time = max(0.0, self.harmony_time - 0.5)
+
+        if self.harmony >= 80:
+            self.harmony80_time += 1.0
+        else:
+            self.harmony80_time = max(0.0, self.harmony80_time - 0.5)
+
+        total_pop_consume = max(0, total_pop_consume - garden_count)
+
+        if total_pop_consume > 0:
+            if self.population <= 0:
+                pop_ratio = 0.0
+            else:
+                pop_ratio = min(1.0, self.population / total_pop_consume)
+        else:
+            pop_ratio = 1.0
+
+        adjusted_gold_prod = total_gold_prod * pop_ratio
+
+        power_boost = 1.0 + (0.2 * total_power_prod)
+        adjusted_gold_prod *= power_boost
+
+        if self.harmony >= 70:
+            adjusted_gold_prod *= 1.10
+        elif self.harmony <= 30:
+            adjusted_gold_prod *= 0.90
+
+
 
     def can_place_building(self, gx: int, gy: int, building_name: str) -> bool:
         if not self.grid.is_buildable(gx, gy):
