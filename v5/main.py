@@ -64,7 +64,6 @@ def main() -> None:
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if hud.buttons.get("build") and hud.buttons["build"].collidepoint(mx, my):
-                    print("====")
                     current_menu = "build" if current_menu != "build" else None
                     selected_building = None
 
