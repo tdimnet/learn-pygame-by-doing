@@ -30,3 +30,27 @@ class Grid:
                 return False
 
             return True
+
+        def get_building(self, gx: int, gy: int) -> str | None:
+            if not self.is_valid_position(gx, gy):
+                return None
+
+            return self.buildings[gx][gy]
+
+        def place_building(self, gx: int, gy: int, building_name: str) -> bool:
+            if not self.is_buildable(gx, gy):
+                return False
+
+            self.buildings[gx][gy] = building_name
+            return True
+
+        def count_buildings(self, building_name: str = None) -> int:
+            count = 0
+            for x in range(self.width):
+                for y in range(self.height):
+                    building = self.buildings[x][y]
+                    if building is not None:
+                        if building_name is None or building == building_name:
+                            count += 1
+
+            return count
