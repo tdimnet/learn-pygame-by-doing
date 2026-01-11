@@ -88,7 +88,15 @@ class GameState:
         elif self.harmony <= 30:
             adjusted_gold_prod *= 0.90
 
+        adjusted_pop_prod = total_pop_prod - total_pop_consume
 
+        self.population += adjusted_pop_prod
+        self.population = max(0, self.population)
+
+        self.gold += adjusted_gold_prod
+        self.gold_per_sec = adjusted_gold_prod
+
+        self.power = total_power_prod
 
     def can_place_building(self, gx: int, gy: int, building_name: str) -> bool:
         if not self.grid.is_buildable(gx, gy):
@@ -117,3 +125,47 @@ class GameState:
         if self.idle_timer >= 1.0:
             self.idle_timer = 0.0
             self._update_economy()
+
+    def save(self, filename: str = "save.json") -> None:
+        data = {
+            "gold": self.gold,
+            "population": self.population,
+            "power": self.power,
+            "harmony": self.harmony,
+            "harmony_time": self.harmony_time,
+            "harmony80_time": self.harmony80_time,
+            "buildings": self.grid.buildings,
+            "completed_milestones": list(self.completed_milestones)
+        }
+
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
+
+        print(f"Game saved: {filename}")
+
+    @staticmethod
+    def load(terrain: list[list[str]], filename: str = "save.json") -> 'GameState':
+        if not os.path.exists(filename):
+            print("No saved game found, launching new game")
+            return GameState(terrain)
+
+        try:
+            with open(filename, "r") as f:
+                data = json.load(f)
+
+            state = GameState(terrain)
+            state.gold = data.get("gold", 50)
+            state.population = data.get("population", 0)
+            state.power = data.get("power", 0)
+            state.harmony = data.get("harmony", 50.0)
+            state.harmony_time = data.get("harmony_time", 0.0)
+            state.harmony80_time = data.get("harmony80_time", 0.0)
+            state.grid.buildings = data.get("buildings", state.grid.buildings)
+            state.completed_milestones = set(data.get("completed_milestones", []))
+
+            print(f"Jeu chargé : {filename}")
+            return state
+
+        except Exception as e:
+            print(f"Error when loading the game: {e}. Launching new game")
+            return GameState(terrain)
