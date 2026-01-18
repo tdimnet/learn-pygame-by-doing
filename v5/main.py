@@ -215,12 +215,58 @@ def main() -> None:
             True,
             (255, 255, 255)
         )
-        
 
+        screen.blit(fps_text, (10, 80))
+        screen.blit(zoom_text, (10, 100))
+        screen.blit(tiles_text, (10, 120))
+
+        if show_hover and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
+            hover_text = font.render(
+                f"Tile: ({hover_gx}, {hover_gy}) - {game_state.grid.terrain[hover_gx], [hover_gy]}",
+                True,
+                (255, 255, 255)
+            )
+            screen.blit(hover_text, (10, 140))
+
+
+        with profiler.section("ui"):
+            hud.draw(
+                screen,
+                int(game_state.gold),
+                int(game_state.population),
+                int(game_state.power),
+                game_state.harmony,
+                (mx, my),
+                current_menu
+            )
+            
+            build_menu.draw(screen, (mx, my))
+
+            milestone_system.draw(
+                screen,
+                pygame.font.SysFont("arial", 22)
+            )
+
+            if selected_building:
+                indicator_font = pygame.font.SysFont("arial", 16)
+                indicator_text = indicator_font.render(
+                    f"Sélectionné : {selected_building} (Click pour placer)",
+                    True,
+                    (255, 255, 100)
+                )
+                screen.blit(
+                    indicator_text,
+                    (SCREEN_WIDTH // 2 - 150,
+                     SCREEN_HEIGHT - 90)
+                )
+        
+        
+        debug_overlay.draw(screen, profiler, game_state)
 
         pygame.display.flip()
         profiler.end_frame()
 
+    game_state.save("save.json")
     pygame.quit()
     sys.exit()
 
