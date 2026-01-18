@@ -3,7 +3,8 @@ import pygame
 
 from config import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FPS,
-    GRID_WIDTH, GRID_HEIGHT
+    GRID_WIDTH, GRID_HEIGHT,
+    TILE_WIDTH, TILE_HEIGHT
 )
 from engine.map_generator import generate_terrain
 from engine.game_state import GameState
@@ -16,6 +17,7 @@ from ui.build_menu import BuildMenu
 from profiler import Profiler
 from ui.debug_overlay import DebugOverlay
 from utils.harmony_color import get_harmony_color_bg
+from rendering.iso_utils import grid_to_iso 
 
 
 def main() -> None:
@@ -61,6 +63,7 @@ def main() -> None:
 
         hover_gx, hover_gy = camera.screen_to_grid(mx, my)
 
+        # Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -111,6 +114,7 @@ def main() -> None:
 
             camera.handle_event(event)
 
+        # Update
         profiler.reset_frame()
 
         build_menu.update(dt, current_menu == "build")
@@ -130,6 +134,92 @@ def main() -> None:
                         if pop_effects[gx][gy] < 0:
                             pop_effects[gx][gy] = 0.0
         
+        # Render
+        bg_color = get_harmony_color_bg(game_state.harmony)
+        screen.fill(bg_color)
+
+        with profiler.section("culling"):
+            visible_tiles = camera.get_visible_tiles(GRID_WIDTH, GRID_HEIGHT)
+
+        with profiler.section("terrain"):
+            tile_renderer.draw_terrain(
+                screen,
+                game_state.grid.terrain,
+                visible_tiles,
+                camera.offset_x,
+                camera.offset_y,
+                camera.zoom,
+                show_grid
+            )
+
+        with profiler.section("buildings"):
+            building_renderer.draw_buildings(
+                screen,
+                game_state.grid,
+                visible_tiles,
+                camera.offset_x,
+                camera.offset_y,
+                camera.zoom,
+                pop_effects
+            )
+
+        if show_hover and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
+            tile_renderer.draw_tile(
+                screen,
+                hover_gx, hover_gy,
+                "grass_alt",
+                camera.offset_x,
+                camera.offset_y,
+                camera.zoom,
+                show_grid=False
+            )
+
+        if selected_building and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
+            if game_state.can_place_building(hover_gx, hover_gy, selected_building):
+                outline_color = (100, 255, 100)
+            else:
+                outline_color = (255, 100, 100)
+
+            iso_x, iso_y = grid_to_iso(hover_gx, hover_gy, camera.zoom)
+            cx = iso_x + camera.offset_x
+            cy = iso_y + camera.offset_y
+            tw = TILE_WIDTH * camera.zoom
+            th = TILE_HEIGHT * camera.zoom
+
+            top = (cx, cy - th / 2)
+            right = (cx + tw / 2, cy)
+            bottom = (cx, cy + th / 2)
+            left = (cx - tw / 2, cy)
+
+            pygame.draw.polygon(
+                screen,
+                outline_color,
+                [top, right, bottom, left],
+                3
+            )
+
+        font = pygame.font.SysFont("arial", 14)
+
+        fps_text = font.render(
+            f"FPS: {int(clock.get_fps())}",
+            True,
+            (255, 255, 255)
+        )
+        zoom_text = font.render(
+            f"Zoom: {camera.zoom:.2f}",
+            True,
+            (255, 255, 255)
+        )
+        tiles_text = font.render(
+            f"Tiles drawn: {len(visible_tiles)}/{GRID_WIDTH * GRID_HEIGHT}",
+            True,
+            (255, 255, 255)
+        )
+        
+
+
+        pygame.display.flip()
+        profiler.end_frame()
 
     pygame.quit()
     sys.exit()
