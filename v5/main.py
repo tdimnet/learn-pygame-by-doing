@@ -24,26 +24,32 @@ def main() -> None:
     pygame.display.set_caption("Buildings")
     clock = pygame.time.Clock()
 
-    print("Generating game field")
-    terrain = generate_terrain(GRID_WIDTH, GRID_HEIGHT)
-    print(f"Field generated: {GRID_WIDTH} x {GRID_HEIGHT}")
+    profiler = Profiler(enabled=True)
 
+    print("Génération du terrain...")
+    terrain = generate_terrain(GRID_WIDTH, GRID_HEIGHT)
+    print(f"Terrain généré : {GRID_WIDTH}x{GRID_HEIGHT}")
+
+    game_state = GameState.load(terrain, "save.json")
+   
     camera = Camera(
         initial_offset_x=SCREEN_WIDTH // 2,
         initial_offset_y=SCREEN_HEIGHT // 4
     )
 
     tile_renderer = TileRenderer()
+    building_renderer = BuildingRenderer()
+
     hud = HUD()
     build_menu = BuildMenu()
+    debug_overlay = DebugOverlay()
 
-    mock_gold = 500
-    mock_population = 10
-    mock_power = 5
-    mock_harmony = 70.0
+    milestone_system = MilestoneSystem()
 
     current_menu = None
     selected_building = None
+
+    pop_effects = [[0.0 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
 
     show_grid = True
     show_hover = False
