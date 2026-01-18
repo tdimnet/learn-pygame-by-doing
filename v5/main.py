@@ -111,70 +111,25 @@ def main() -> None:
 
             camera.handle_event(event)
 
+        profiler.reset_frame()
+
         build_menu.update(dt, current_menu == "build")
 
-        screen.fill((34, 139, 34))
+        with profiler.section("economy"):
+            game_state.update(dt)
 
-        visible_tiles = camera.get_visible_tiles(GRID_WIDTH, GRID_HEIGHT)
-        tile_renderer.draw_terrain(
-            screen,
-            terrain,
-            visible_tiles,
-            camera.offset_x,
-            camera.offset_y,
-            camera.zoom,
-            show_grid
-        )
+        with profiler.section("milestones"):
+            milestone_system.check(game_state)
+            milestone_system.update(dt)
 
-        if show_hover and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
-            tile_renderer.draw_tile(
-                screen,
-                hover_gx, hover_gy,
-                "grass_alt",
-                camera.offset_x,
-                camera.offset_y,
-                camera.zoom,
-                show_grid=False
-            )
-
-        font = pygame.font.SysFont("arial", 14)
-        fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, (255, 255, 255))
-        zoom_text = font.render(f"Zoom: {camera.zoom:.2f}", True, (255, 255, 255))
-        tiles_text = font.render(f"Tiles drawn: {len(visible_tiles)}/{GRID_WIDTH * GRID_HEIGHT}", True, (255, 255, 255))
-
-        screen.blit(fps_text, (10, 80))
-        screen.blit(zoom_text, (10, 100))
-        screen.blit(tiles_text, (10, 120))
-
-        if show_hover and 0 <= hover_gx < GRID_WIDTH and 0 <= hover_gy < GRID_HEIGHT:
-            hover_text = font.render(
-                f"Tile: ({hover_gx}, {hover_gy}) - {terrain[hover_gx][hover_gy]}",
-                True,
-                (255, 255, 255)
-            )
-            screen.blit(hover_text, (10, 70))
-
-        hud.draw(
-            screen,
-            mock_gold,
-            mock_population,
-            mock_power,
-            mock_harmony,
-            (mx, my),
-            current_menu
-        )
-
-        build_menu.draw(screen, (mx, my))
-
-        if selected_building:
-            indicator_text = font.render(
-                f"Sélectionné : {selected_building}",
-                True,
-                (255, 255, 255)
-            )
-            screen.blit(indicator_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
-
-        pygame.display.flip()
+        with profiler.section("pop_effects"):
+            for gx in range(GRID_WIDTH):
+                for gy in range(GRID_HEIGHT):
+                    if pop_effects[gx][gy] > 0:
+                        pop_effects[gx][gy] -= dt
+                        if pop_effects[gx][gy] < 0:
+                            pop_effects[gx][gy] = 0.0
+        
 
     pygame.quit()
     sys.exit()
