@@ -6,10 +6,16 @@ from config import (
     GRID_WIDTH, GRID_HEIGHT
 )
 from engine.map_generator import generate_terrain
+from engine.game_state import GameState
+from engine.milestones import MilestoneSystem
 from rendering.camera import Camera
 from rendering.tile_renderer import TileRenderer
+from rendering.building_renderer import BuildingRenderer
 from ui.hud import HUD
 from ui.build_menu import BuildMenu
+from profiler import Profiler
+from ui.debug_overlay import DebugOverlay
+from utils.harmony_color import get_harmony_color_bg
 
 
 def main() -> None:
