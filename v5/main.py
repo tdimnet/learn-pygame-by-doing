@@ -74,6 +74,10 @@ def main() -> None:
                     show_hover = not show_hover
                     print(f"Hover highlight: {'ON' if show_hover else 'OFF'}")
 
+                if event.key == pygame.K_0:
+                    debug_overlay.toggle()
+                    print(f"Debug overlay: {'ON' if debug_overlay.enabled else 'OFF'}")
+
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if hud.buttons.get("build") and hud.buttons["build"].collidepoint(mx, my):
                     current_menu = "build" if current_menu != "build" else None
@@ -94,6 +98,16 @@ def main() -> None:
 
                     else:
                         current_menu = None
+
+                elif selected_building and not current_menu:
+                    gx, gy = camera.screen_to_grid(mx, my)
+
+                    if game_state.place_building(gx, gy, selected_building):
+                        print(f"Batiment placé : {selected_building} en ({gx} {gy})")
+                        pop_effects[gx][gy] = 0.15
+                        selected_building = None
+                    else:
+                        print(f"Impossible de placer {selected_building} ici")
 
             camera.handle_event(event)
 
