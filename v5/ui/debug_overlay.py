@@ -47,4 +47,43 @@ class DebugOverlay:
         overlay_surface.blit(frame_text, (10, y))
         y += line_height * 2
 
+        header = self.font.render(
+            "Section              Last    Avg     Max",
+            True,
+            (200, 200, 200)
+        )
+        overlay_surface.blit(header, (10, y))
+        y += line_height
+
+        separator = self.font.render(
+            "-" * 45,
+            True,
+            (100, 100, 100)
+        )
+        overlay_surface.blit(separator, (10, y))
+        y += line_height
+
+        snapshot = profiler.snapshot()
+        for name, last_ms, avg_ms, max_ms in snapshot[:10]:
+            display_name = name[:20].ljust(20)
+
+            stats_text = self.font.render(
+                f"{display_name} {last_ms:5.2f} {avg_ms:5.2f} {max_ms:5.2f}",
+                True,
+                COLOR_UI_TEXT
+            )
+            overlay_surface.blit(stats_text, (10, y))
+            y += line_height
+
+            buildings_text = self.font.render(
+                f"Buildings: {game_state.grid.count_buildings()}",
+                True,
+                (150, 200, 150)
+            )
+            overlay_surface.blit(buildings_text, (10, y))
+
+            surface.blit(
+                overlay_surface,
+                (surface.get_width() - overlay_width - 10, 10)
+            )
 
