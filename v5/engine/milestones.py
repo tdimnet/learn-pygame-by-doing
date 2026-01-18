@@ -41,7 +41,7 @@ MILESTONES = [
     {
         "id": "zen_mastery",
         "message": "Maitrise zen : la prospérité s'installe",
-        "condition": lambda state: state.harmony_80_time >= 60,
+        "condition": lambda state: state.harmony80_time >= 60,
         "reward": lambda state: setattr(state, "gold",
                                         state.gold + 200)
     }
