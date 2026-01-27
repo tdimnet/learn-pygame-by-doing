@@ -31,7 +31,7 @@ class Grid:
 
         return True
 
-    def get_building(self, gx: int, gy: int) -> str | None:
+    def get_building(self, gx: int, gy: int) -> str:
         if not self.is_valid_position(gx, gy):
             return None
 
