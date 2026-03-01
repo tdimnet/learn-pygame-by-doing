@@ -7,7 +7,7 @@ pygame.init()
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-TITLE_SIZE = 40
+TILE_SIZE = 40
 GRID_SIZE= 10
 
 
@@ -16,16 +16,16 @@ pygame.display.set_caption("My First Game")
 clock = pygame.time.Clock()
 
 
-def draw_tite_topdown(
+def draw_tile_topdown(
     surface: pygame.Surface,
     gx: int,
     gy: int,
     color: tuple[int, int, int]
 ) -> None:
-    x = gx * TITLE_SIZE + 200 # offset to center the grid
-    y = gy * TITLE_SIZE + 100
+    x = gx * TILE_SIZE + 200 # offset to center the grid
+    y = gy * TILE_SIZE + 100
 
-    rect = pygame.Rect(x, y, TITLE_SIZE, TITLE_SIZE)
+    rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
     pygame.draw.rect(surface, color, rect) # Draw the title
     pygame.draw.rect(
         surface,
@@ -35,8 +35,18 @@ def draw_tite_topdown(
     ) # Draw the border around the tile
 
 
-def get_tile_at_mouse() -> None:
-    pass
+def get_tile_at_mouse(
+        mouse_x: int,
+        mouse_y: int
+) -> tuple[int, int] | None:
+    # Reverse the calculation from draw_tilte_topdown
+    gx = (mouse_x - 200) // TILE_SIZE
+    gy = (mouse_y - 100) // TILE_SIZE
+
+    if 0 <= gx < GRID_SIZE and 0 <= gy < GRID_SIZE:
+        return gx, gy
+    
+    return None
 
 
 running = True
@@ -47,9 +57,18 @@ while running:
         
     screen.fill((30, 30, 30))
 
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    hovered_tile = get_tile_at_mouse(mouse_x, mouse_y)
+
+    # Draw all tiles
     for gx in range(GRID_SIZE):
         for gy in range(GRID_SIZE):
-            draw_tite_topdown(screen, gx, gy, (100, 150, 100))
+            color = (100, 150, 100)
+
+            if hovered_tile and hovered_tile == (gx, gy):
+                color = (150, 200, 150)
+
+            draw_tile_topdown(screen, gx, gy, color)
 
     pygame.display.flip()
     clock.tick(60)
