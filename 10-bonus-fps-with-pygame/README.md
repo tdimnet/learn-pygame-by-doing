@@ -5,4 +5,5 @@
 ## Ressources
 
 - [Weapons](https://opengameart.org/content/fps-weapons-overlay)
+- [Walls](https://opengameart.org/content/old-school-fps-wall-textures)
 
