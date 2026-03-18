@@ -1,6 +1,6 @@
-# Buildings
+# Learn Pygame by Doing!
 
-A WIP City Builder built with Pygame.
+WIP: A collection of games built with pygame
 
 ![The four different iterations of the game](./hero.png)
 
