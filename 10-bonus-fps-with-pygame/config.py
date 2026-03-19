@@ -44,3 +44,18 @@ WEAPONS = {
 
 FLOOR_COLOR = (70, 70, 70)
 CEILING_COLOR = (40, 40, 40)
+
+TILE_SIZE = 64
+EMPTY = 0
+WALL = 1
+DOOR = 4
+
+LANGUAGES = {
+    "fr": {},
+    "en": {}
+}
+
+CURRENT_LANG = "fr"
+
+def t(key: str) -> str:
+    return LANGUAGES[CURRENT_LANG].get(key, key)
