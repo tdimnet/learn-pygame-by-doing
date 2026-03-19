@@ -45,14 +45,35 @@ WEAPONS = {
 FLOOR_COLOR = (70, 70, 70)
 CEILING_COLOR = (40, 40, 40)
 
+TEXTURES_PATH = "assets/textures/"
+SPRITES_PATH = "assets/sprites/"
+SOUNDS_PATH = "assets/sounds/"
+
+WALL_TEXTURES = {
+    1: "brick.png",
+    2: "stone.png",
+    3: "metal.png",
+    4: "wood.png"
+}
+
 TILE_SIZE = 64
 EMPTY = 0
 WALL = 1
 DOOR = 4
 
 LANGUAGES = {
-    "fr": {},
-    "en": {}
+    "fr": {
+        "menu_play": "Jouer",
+        "menu_quit": "Quitter",
+        "menu_settings": "Options",
+        "menu_language": "Langue"
+    },
+    "en": {
+        "menu_play": "Play",
+        "menu_quit": "Quit",
+        "menu_settings": "Settings",
+        "menu_language": "Language"
+    }
 }
 
 CURRENT_LANG = "fr"
