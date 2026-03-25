@@ -21,8 +21,8 @@ class Map:
                 self.grid.append(row)
 
     def get_tile(self, x: int, y: int) -> int:
-        if 0 <= x < len(self.grid[0]) and 0 <= y < len(self.grid):
-            return self.grid[x][y]
+        if 0 <= y < len(self.grid) and 0 <= x < len(self.grid[0]):
+            return self.grid[y][x]
         return 1
     
     def is_wall(self, x: int, y: int) -> bool:
@@ -33,4 +33,4 @@ class Map:
 
     def open_door(self, x: int, y: int):
         if self.is_door(x, y):
-            self.grid[x][y] = 0
+            self.grid[y][x] = 0
