@@ -37,10 +37,10 @@ class Player:
             self._try_move(self.x + dx, self.y + dy)
         if keys[pygame.K_s]:
             self._try_move(self.x - dx, self.y - dy)
-        if keys[pygame.K_a]:
-            self._try_move(self.x - dx, self.y + dy)
         if keys[pygame.K_d]:
-            self._try_move(self.x + dx, self.y - dy)
+            self._try_move(self.x - dy, self.y + dx)
+        if keys[pygame.K_a]:
+            self._try_move(self.x + dy, self.y - dx)
     
     def rotate(self, dt: float) -> None:
         keys = pygame.key.get_pressed()
