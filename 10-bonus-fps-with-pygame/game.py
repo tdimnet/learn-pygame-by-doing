@@ -9,6 +9,7 @@ from config import (
 )
 from engine.map import Map
 from engine.player import Player
+from rendering.raycaster import Raycaster
 
 
 class Game:
@@ -18,6 +19,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.map = Map("assets/maps/level_1.txt")
         self.player = Player(self.map)
+        self.raycaster = Raycaster(self.screen, self.map, self.player)
 
     def run(self):
         while True:
@@ -42,4 +44,4 @@ class Game:
         self.player.rotate(dt)
 
     def draw(self) -> None:
-        self.screen.fill((0, 0, 0))
+        self.raycaster.render()
