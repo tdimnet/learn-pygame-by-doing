@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 import math
+import pygame
 
 if TYPE_CHECKING:
     from engine.map import Map
@@ -7,7 +8,9 @@ if TYPE_CHECKING:
 
 from config import (
     PLAYER_START_ANGLE,
-    PLAYER_MAX_HEALTH
+    PLAYER_MAX_HEALTH,
+    PLAYER_SPEED,
+    PLAYER_ROT_SPEED
 )
 
 class Player:
@@ -23,11 +26,34 @@ class Player:
         if not self.map.is_wall(int(self.x), int(new_y)):
             self.y = new_y
 
-    def move(self):
-        pass
-    
-    def rotate(self):
-        pass
+    def move(self, dt: float) -> None:
+        keys = pygame.key.get_pressed()
 
-    def interact(self):
-        pass
+        speed = PLAYER_SPEED * dt
+        dx = math.cos(math.radians(self.angle)) * speed
+        dy = math.sin(math.radians(self.angle)) * speed
+
+        if keys[pygame.K_w]:
+            self._try_move(self.x + dx, self.y + dy)
+        if keys[pygame.K_s]:
+            self._try_move(self.x - dx, self.y - dy)
+        if keys[pygame.K_a]:
+            self._try_move(self.x - dx, self.y + dy)
+        if keys[pygame.K_d]:
+            self._try_move(self.x + dx, self.y - dy)
+    
+    def rotate(self, dt: float) -> None:
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_LEFT]:
+            self.angle -= PLAYER_ROT_SPEED * dt * 100
+        if keys[pygame.K_RIGHT]:
+            self.angle += PLAYER_ROT_SPEED * dt * 100
+        
+        self.angle %= 360
+        
+    def interact(self) -> None:
+        ix = int(self.x + math.cos(math.radians(self.angle)))
+        iy = int(self.y + math.sin(math.radians(self.angle)))
+
+        self.map.open_door(ix, iy)
