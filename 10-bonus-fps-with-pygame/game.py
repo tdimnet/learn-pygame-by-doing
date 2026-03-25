@@ -9,6 +9,7 @@ from config import (
 )
 from engine.map import Map
 from engine.player import Player
+from engine.enemy import Enemy
 from rendering.raycaster import Raycaster
 
 
@@ -19,6 +20,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.map = Map("assets/maps/level_1.txt")
         self.player = Player(self.map)
+        self.enemies = [Enemy(x, y) for x, y in self.map.enemy_positions]
         self.raycaster = Raycaster(self.screen, self.map, self.player)
 
     def run(self):
@@ -42,6 +44,9 @@ class Game:
     def update(self, dt: float) -> None:
         self.player.move(dt)
         self.player.rotate(dt)
+
+        for enemy in self.enemies:
+            enemy.update(dt, self.player, self.map)
 
     def draw(self) -> None:
         self.raycaster.render()
