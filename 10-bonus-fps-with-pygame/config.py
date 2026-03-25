@@ -50,10 +50,11 @@ SPRITES_PATH = "assets/sprites/"
 SOUNDS_PATH = "assets/sounds/"
 
 WALL_TEXTURES = {
-    1: "brick.png",
-    2: "stone.png",
-    3: "metal.png",
-    4: "wood.png"
+    1: "stone_01.png",
+    2: "stone_02.png",
+    3: "stone_03.png",
+    4: "stone_04.png",
+    5: "stone_05.png",
 }
 
 TILE_SIZE = 64
