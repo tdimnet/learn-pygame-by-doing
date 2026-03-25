@@ -73,8 +73,26 @@ class Enemy:
     ) -> None:
         self._move_towards(player.x, player.y, ENEMY_SPEED * dt, map)
 
-    def distance_to_player(self):
-        pass
+    def distance_to_player(
+            self,
+            player: "Player"
+    ) -> float:
+        return math.hypot(player.x - self.x, player.y - self.y)
 
-    def update(self):
-        pass
+    def update(
+            self,
+            dt: float,
+            player: "Player",
+            map: "Map"
+    ) -> None:
+        dist = self.distance_to_player(player)
+
+        if self.state == EnemyState.PATROL and dist < ENEMY_DETECTION_RANGE:
+            self.state = EnemyState.CHASE
+        elif self.state == EnemyState.CHASE and dist > ENEMY_DETECTION_RANGE * 1.2:
+            self.state = EnemyState.PATROL
+        
+        if self.state == EnemyState.PATROL:
+            self._update_patrol(dt, map)
+        elif self.state == EnemyState.CHASE:
+            self._update_chase(dt, player, map)
