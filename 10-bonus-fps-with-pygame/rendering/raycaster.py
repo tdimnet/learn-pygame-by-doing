@@ -35,7 +35,9 @@ class Raycaster:
         self.screen = screen
         self.map = map
         self.player = player
+        self.z_buffer: list[float] = []
         self.textures = TextureManager()
+        
 
     def cast_ray(self, angle: float) -> RayHit:
         ray_cos = math.cos(math.radians(angle))
@@ -121,6 +123,7 @@ class Raycaster:
         for ray in range(NUM_RAYS):
             angle = self.player.angle - HALF_FOV + ray * DELTA_ANGLE
             hit = self.cast_ray(angle)
+            self.z_buffer.append(hit.dist)
 
             wall_height = int(SCREEN_DIST / hit.dist)
             wall_top = max(0, SCREEN_HEIGHT // 2 - wall_height // 2)
