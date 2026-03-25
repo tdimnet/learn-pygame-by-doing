@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 import pygame
 import math
 
@@ -12,6 +13,15 @@ from config import (
     SCREEN_DIST, MAX_DEPTH,
     FLOOR_COLOR, CEILING_COLOR
 )
+from rendering.texture_manager import TextureManager
+
+
+@dataclass
+class RayHit:
+    dist: float
+    tile_id: int
+    wall_x: float
+    side: int
 
 
 class Raycaster:
@@ -24,8 +34,9 @@ class Raycaster:
         self.screen = screen
         self.map = map
         self.player = player
+        self.textures = TextureManager()
 
-    def cast_ray(self, angle: float) -> float:
+    def cast_ray(self, angle: float) -> RayHit:
         ray_cos = math.cos(math.radians(angle))
         ray_sin = math.sin(math.radians(angle))
 
@@ -65,16 +76,34 @@ class Raycaster:
                 map_y += stex_y
                 side = 1
 
+            tile_id = self.map.get_tile(map_x, map_y)
             if self.map.is_wall(map_x, map_y):
                 hit = True
                 break
         
+        if not hit:
+            return RayHit(
+                dist=MAX_DEPTH,
+                tile_id=1,
+                wall_x=0.0,
+                side=0
+            )
+        
         if side == 0:
             perp_dist = (map_x - self.player.x + (1 - stex_x) / 2) / ray_cos
+            wall_x = self.player.y + perp_dist * ray_sin
         else:
             perp_dist = (map_y - self.player.y + (1 - stex_y) / 2) / ray_sin
+            wall_x = self.player.x + perp_dist * ray_cos
         
-        return max(perp_dist, 0.0001)
+        wall_x -= math.floor(wall_x)
+
+        return RayHit(
+            dist=max(perp_dist, 0.0001),
+            tile_id=tile_id,
+            wall_x=wall_x,
+            side=side
+        )
 
     def render(self) -> None:
         pygame.draw.rect(
