@@ -18,11 +18,39 @@ class EnemyState(Enum):
 
 
 class Enemy:
-    def __init__(self):
-        pass
+    def __init__(self, x: float, y: float) -> None:
+        self.x = x
+        self.y = y
+        self.state = EnemyState.PATROL
 
-    def _move_towards(self):
-        pass
+        # Patrol state
+        self._start_x = x
+        self._start_y = y
+        self._patrol_dir = 1.0
+
+    def _move_towards(
+            self,
+            tx: float,
+            ty: float,
+            speed: float,
+            map: "Map"
+    ) -> None:
+        dx = tx - self.x
+        dy = ty - self.y
+
+        length = math.hypot(dx, dy)
+        if length < 0.05:
+            return
+        
+        dx, dy = dx / length * speed, dy / length * speed
+
+        new_x = self.x + dx
+        new_y = self.y + dy
+
+        if not map.is_wall(int(new_x), int(self.y)):
+            self.x = new_x
+        if not map.is_wall(int(self.x), int(new_y)):
+            self.y = new_y
 
     def _update_patrol(self):
         pass
