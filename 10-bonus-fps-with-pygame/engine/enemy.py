@@ -52,11 +52,26 @@ class Enemy:
         if not map.is_wall(int(self.x), int(new_y)):
             self.y = new_y
 
-    def _update_patrol(self):
-        pass
+    def _update_patrol(
+            self,
+            dt: float,
+            map: "Map"
+    ) -> None:
+        target_x = self._start_x + self._patrol_dir * 1.5
+        target_y = self._start_y
 
-    def _update_chase(self):
-        pass
+        self._move_towards(target_x, target_y, ENEMY_SPEED * dt, map)
+
+        if math.hypot(target_x - self.x, target_y - self.y) < 0.1:
+            self._patrol_dir *= -1
+
+    def _update_chase(
+            self,
+            dt: float,
+            player: "Player",
+            map: "Map"
+    ) -> None:
+        self._move_towards(player.x, player.y, ENEMY_SPEED * dt, map)
 
     def distance_to_player(self):
         pass
