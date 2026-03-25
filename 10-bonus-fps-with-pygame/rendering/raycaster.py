@@ -77,4 +77,31 @@ class Raycaster:
         return max(perp_dist, 0.0001)
 
     def render(self) -> None:
-        pass
+        pygame.draw.rect(
+            self.screen,
+            CEILING_COLOR,
+            (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
+        )
+        pygame.draw.rect(
+            self.screen,
+            FLOOR_COLOR,
+            (0, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
+        )
+
+        for ray in range(NUM_RAYS):
+            angle = self.player.angle - HALF_FOV + ray * DELTA_ANGLE
+            dist = self.cast_ray(angle)
+
+            wall_height = int(SCREEN_DIST / dist)
+            wall_top = max(0, SCREEN_HEIGHT // 2 - wall_height // 2)
+            wall_bottom = min(SCREEN_HEIGHT, SCREEN_HEIGHT // 2 + wall_height // 2)
+
+            shade = max(40, 255 - int(dist * 20))
+            color = (shade, shade // 2, shade // 2)
+
+            pygame.draw.line(
+                self.screen,
+                color,
+                (ray, wall_top),
+                (ray, wall_bottom)
+            )
