@@ -11,7 +11,8 @@ from config import (
     SCREEN_WIDTH, SCREEN_HEIGHT,
     NUM_RAYS, HALF_FOV, DELTA_ANGLE,
     SCREEN_DIST, MAX_DEPTH,
-    FLOOR_COLOR, CEILING_COLOR
+    FLOOR_COLOR, CEILING_COLOR,
+    TILE_SIZE
 )
 from rendering.texture_manager import TextureManager
 
@@ -119,18 +120,21 @@ class Raycaster:
 
         for ray in range(NUM_RAYS):
             angle = self.player.angle - HALF_FOV + ray * DELTA_ANGLE
-            dist = self.cast_ray(angle)
+            hit = self.cast_ray(angle)
 
-            wall_height = int(SCREEN_DIST / dist)
+            wall_height = int(SCREEN_DIST / hit.dist)
             wall_top = max(0, SCREEN_HEIGHT // 2 - wall_height // 2)
             wall_bottom = min(SCREEN_HEIGHT, SCREEN_HEIGHT // 2 + wall_height // 2)
+            draw_height = wall_bottom - wall_top
 
-            shade = max(40, 255 - int(dist * 20))
-            color = (shade, shade // 2, shade // 2)
+            tex_x = int(hit.wall_x * TILE_SIZE)
+            tex_x = max(0, min(tex_x, TILE_SIZE - 1))
 
-            pygame.draw.line(
-                self.screen,
-                color,
-                (ray, wall_top),
-                (ray, wall_bottom)
-            )
+            column = self.textures.get_column(hit.tile_id, tex_x, draw_height)
+
+            if hit.side == 1:
+                dark = pygame.Surface((1, draw_height), pygame.SRCALPHA)
+                dark.fill((0, 0, 0, 80))
+                column.blit(dark, (0, 0))
+            
+            self.screen.blit(column, (ray, wall_top))
