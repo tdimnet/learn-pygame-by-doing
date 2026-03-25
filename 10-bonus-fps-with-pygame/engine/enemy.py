@@ -62,8 +62,10 @@ class Enemy:
 
         self._move_towards(target_x, target_y, ENEMY_SPEED * dt, map)
 
-        if math.hypot(target_x - self.x, target_y - self.y) < 0.1:
-            self._patrol_dir *= -1
+        next_x = self._start_x + self._patrol_dir * 1.5
+        if (math.hypot(next_x - self.x, self._start_y - self.y) < 0.1
+            or map.is_wall(int(next_x), int(self._start_y))):
+                self._patrol_dir *= -1
 
     def _update_chase(
             self,
