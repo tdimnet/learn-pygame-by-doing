@@ -1,25 +1,45 @@
 import pygame
+import sys
 
 from config import (
     SCREEN_WIDTH,
-    SCREEN_HEIGHT
+    SCREEN_HEIGHT,
+    TITLE,
+    FPS
 )
 from engine.map import Map
 from engine.player import Player
 
 
 class Game:
-    def __init__(self):
-        pass
+    def __init__(self) -> None:
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption(TITLE)
+        self.clock = pygame.time.Clock()
+        self.map = Map("assets/maps/level_1.txt")
+        self.player = Player(self.map)
 
     def run(self):
-        pass
+        while True:
+            dt = self.clock.tick(FPS) / 1000.0
+            self.handle_events()
+            self.update(dt)
+            self.draw()
+            pygame.display.flip()
 
-    def handle_events(self):
-        pass
+    def handle_events(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_e:
+                    self.player.interact()
 
-    def update(self):
-        pass
 
-    def draw(self):
-        pass
+    def update(self, dt: float) -> None:
+        self.player.move(dt)
+        self.player.rotate(dt)
+
+    def draw(self) -> None:
+        self.screen.fill((0, 0, 0))
