@@ -28,8 +28,9 @@ class Map:
     def is_wall(self, x: int, y: int) -> bool:
         return self.get_tile(x, y) in (1, 2, 3)
 
-    def is_door(self) -> None:
-        pass
+    def is_door(self, x:int, y: int) -> bool:
+        return self.get_tile(x, y) == 4
 
     def open_door(self, x: int, y: int):
-        pass
+        if self.is_door(x, y):
+            self.grid[x][y] = 0
