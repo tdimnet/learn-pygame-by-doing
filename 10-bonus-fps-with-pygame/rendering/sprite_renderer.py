@@ -22,25 +22,14 @@ class SpriteRenderer:
             screen: pygame.Surface
     ) -> None:
         self.screen = screen
-        self._patrol_frames = self._load_frames("rguard_s", 8)
-        self._chase_frames = self._load_frames("rguard_w1", 8)
+        self._patrol_frame = self._load_single("rguard_s_1")
+        self._chase_frames = [self._load_single(f"rguard_w{i}_1") for i in range(1, 5)]
 
-    def _load_frames(
-            self,
-            prefix: str,
-            count: int
-    ) -> list[pygame.Surface]:
-        frames = []
-        for i in range(1, count + 1):
-            path = f"{SPRITES_PATH}guard/{prefix}_{i}.bmp"
-            img = pygame.image.load(path).convert()
-
-            if img is None:
-                print("⚠️ Missing asset: {path}")
-
-            img.set_colorkey(img.get_at((0, 0)))
-            frames.append(img)
-        return frames
+    def _load_single(self, name: str) -> pygame.Surface:
+        path = f"{SPRITES_PATH}guard/{name}.bmp"
+        img = pygame.image.load(path).convert()
+        img.set_colorkey(img.get_at((0, 0)))
+        return img
 
     def render(
             self,
@@ -78,8 +67,10 @@ class SpriteRenderer:
             if dist >= z_buffer[max(0, min(screen_x, SCREEN_WIDTH - 1))]:
                 continue
 
-            frames = self._chase_frames if enemy.state == EnemyState.CHASE else self._patrol_frames
-            frame = frames[enemy._anim_frame]
+            if enemy.state == EnemyState.CHASE:
+                frame = self._chase_frames[enemy._anim_frame % 4]
+            else:
+                frame = self._patrol_frame
 
             scaled = pygame.transform.scale(frame, (sprite_width, sprite_height))
             self.screen.blit(scaled, (left, top))
