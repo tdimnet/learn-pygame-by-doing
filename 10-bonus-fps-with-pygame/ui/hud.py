@@ -28,7 +28,14 @@ class Hud:
         value_rect = value_surf.get_rect(centerx=cx, top=self.y + 32)
         self.screen.blit(value_surf, value_rect)
 
-    def render(self) -> None:
+    def render(
+            self,
+            level: int,
+            score: int,
+            lives: int,
+            health: int,
+            ammo: int
+    ) -> None:
         pygame.draw.rect(
             self.screen,
             HUD_COLOR,
@@ -42,3 +49,9 @@ class Hud:
             (SCREEN_WIDTH, self.y),
             3
         )
+
+        self._draw_section("LEVEL", str(level), 100)
+        self._draw_section("SCORE", str(score), 280)
+        self._draw_section("LIVES", str(lives), 450)
+        self._draw_section("HEALTH", str(health), 820)
+        self._draw_section("AMMO", str(ammo), 1000)

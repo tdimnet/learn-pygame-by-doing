@@ -64,4 +64,10 @@ class Game:
             self.player,
             self.raycaster.z_buffer
         )
-        self.hud.render()
+        self.hud.render(
+            level=1,
+            score=0,
+            lives=3,
+            health=100,
+            ammo=8
+        )
