@@ -14,6 +14,8 @@ from engine.enemy import Enemy
 from rendering.raycaster import Raycaster
 from rendering.sprite_renderer import SpriteRenderer
 
+from ui.hud import Hud
+
 
 class Game:
     def __init__(self) -> None:
@@ -27,6 +29,8 @@ class Game:
 
         self.raycaster = Raycaster(self.screen, self.map, self.player)
         self.sprite_renderer = SpriteRenderer(self.screen)
+
+        self.hud = Hud(self.screen)
 
     def run(self):
         while True:
@@ -60,3 +64,4 @@ class Game:
             self.player,
             self.raycaster.z_buffer
         )
+        self.hud.render()
