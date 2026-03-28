@@ -61,8 +61,8 @@ class Game:
 
             screen_x = int((enemy_angle / HALF_FOV + 1) * SCREEN_WIDTH / 2)
 
-            z = self.raycaster.z_buffer[max(0, min(screen_x, SCREEN_WIDTH / 2))]
-            if dist >= 1:
+            z = self.raycaster.z_buffer[max(0, min(screen_x, SCREEN_WIDTH - 1))]
+            if dist >= z:
                 continue
 
             sprite_width = int(SCREEN_DIST / dist)
