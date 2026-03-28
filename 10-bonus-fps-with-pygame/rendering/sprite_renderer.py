@@ -10,8 +10,10 @@ if TYPE_CHECKING:
 from config import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,SCREEN_DIST,
-    HALF_FOV
+    HALF_FOV,
+    SPRITES_PATH
 )
+from engine.enemy import EnemyState
 
 
 class SpriteRenderer:
@@ -20,6 +22,25 @@ class SpriteRenderer:
             screen: pygame.Surface
     ) -> None:
         self.screen = screen
+        self._patrol_frames = self._load_frames("rguard_s", 8)
+        self._chase_frames = self._load_frames("rguard_w1", 8)
+
+    def _load_frames(
+            self,
+            prefix: str,
+            count: int
+    ) -> list[pygame.Surface]:
+        frames = []
+        for i in range(1, count + 1):
+            path = f"{SPRITES_PATH}guard/{prefix}_{i}.bmp"
+            img = pygame.image.load(path).convert()
+
+            if img is None:
+                print("⚠️ Missing asset: {path}")
+
+            img.set_colorkey(img.get_at((0, 0)))
+            frames.append(img)
+        return frames
 
     def render(
             self,
