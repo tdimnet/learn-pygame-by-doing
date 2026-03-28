@@ -47,6 +47,15 @@ WEAPONS = {
         "frame_speed": 0.08
     }
 }
+WEAPON_FRAME_W = 64
+WEAPON_FRAME_H = 64
+WEAPON_SCALE = 6
+WEAPON_ROW = {
+    "knife": 1,
+    "pistol": 1,
+    "rifle": 2
+}
+WEAPONS_SHEET = "assets/sprites/weapons/fps_weapons.png"
 
 FLOOR_COLOR = (70, 70, 70)
 CEILING_COLOR = (40, 40, 40)

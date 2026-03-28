@@ -68,6 +68,6 @@ class Game:
             level=1,
             score=0,
             lives=3,
-            health=100,
+            health=self.player.health,
             ammo=8
         )
