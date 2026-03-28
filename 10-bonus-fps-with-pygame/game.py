@@ -51,9 +51,10 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_e:
                     self.player.interact()
-            
-                if event.type == pygame.K_SPACE:
                     print("+++")
+            
+                if event.key == pygame.K_SPACE:
+                    self.weapon.shoot()
 
     def update(self, dt: float) -> None:
         self.player.move(dt)
