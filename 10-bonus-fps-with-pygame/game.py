@@ -53,7 +53,7 @@ class Game:
             if dist < 0.1:
                 continue
 
-            enemy_angle = math.degrees(math.atan2(dx, dy)) - self.player.angle
+            enemy_angle = math.degrees(math.atan2(dy, dx)) - self.player.angle
             enemy_angle = (enemy_angle + 180) % 360 - 180
 
             if abs(enemy_angle) > HALF_FOV:
