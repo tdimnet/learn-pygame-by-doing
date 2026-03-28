@@ -37,7 +37,7 @@ class Enemy:
         self._anim_timer += dt
         if self._anim_timer >= frame_duration:
             self._anim_timer = 0.0
-            self._anim_frame (self._anim_frame + 1) % 8
+            self._anim_frame = (self._anim_frame + 1) % 8
 
     def _move_towards(
             self,
