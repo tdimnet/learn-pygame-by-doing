@@ -13,10 +13,14 @@ from config import (
 
 
 class Weapon:
+    FRAME_DURATION = 0.07
+
     def __init__(self) -> None:
         self._sheet = self._load_sheet()
         self._frames = self._extract_frames("pistol")
         self._current_frame = 0
+        self._firing = False
+        self._anim_timer = 0.0
 
     def _load_sheet(self) -> pygame.Surface:
         img = pygame.image.load(WEAPONS_SHEET).convert()
@@ -36,6 +40,24 @@ class Weapon:
             frame = self._sheet.subsurface(rect).copy()
             frames.append(frame)
         return frames
+    
+    def shoot(self, dt: float) -> None:
+        if not self._firing:
+            self._firing = True
+            self._current_frame = 1
+            self._anim_timer = 0.0
+
+    def update(self, dt: float) -> None:
+        if not self._firing:
+            return
+        
+        self._anim_timer += dt
+        if self._anim_timer >= self.FRAME_DURATION:
+            self._anim_timer = 0.0
+            self._current_frame += 1
+            if self._current_frame >= 5:
+                self._current_frame = 0
+                self._firing = False
     
     def render(self, screen: pygame.Surface) -> None:
         frame = self._frames[self._current_frame]
