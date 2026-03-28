@@ -14,6 +14,21 @@ class Hud:
         self._font_label = pygame.font.SysFont("Arial", 16, bold=True)
         self._font_value = pygame.font.SysFont("Arial", 32, bold=True)
 
+    def _draw_placeholders(self) -> None:
+        # Face
+        face_rect = pygame.Rect(0, 0, 80, 80)
+        face_rect.centerx = SCREEN_WIDTH // 2
+        face_rect.top = self.y + 15
+        pygame.draw.rect(self.screen, (80, 60, 60), face_rect)
+        pygame.draw.rect(self.screen, HUD_BORDER_COLOR, face_rect, 2)
+
+        # Weapon
+        weapon_rect = pygame.Rect(0, 0, 80, 80)
+        weapon_rect.centerx = 1160
+        weapon_rect.top = self.y + 15
+        pygame.draw.rect(self.screen, (40, 40, 60), weapon_rect)
+        pygame.draw.rect(self.screen, HUD_BORDER_COLOR, weapon_rect, 2)
+
     def _draw_section(
             self,
             label: str,
@@ -55,3 +70,5 @@ class Hud:
         self._draw_section("LIVES", str(lives), 450)
         self._draw_section("HEALTH", str(health), 820)
         self._draw_section("AMMO", str(ammo), 1000)
+
+        self._draw_placeholders()
