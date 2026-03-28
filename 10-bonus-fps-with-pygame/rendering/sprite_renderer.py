@@ -24,6 +24,8 @@ class SpriteRenderer:
         self.screen = screen
         self._patrol_frame = self._load_single("rguard_s_1")
         self._chase_frames = [self._load_single(f"rguard_w{i}_1") for i in range(1, 5)]
+        self._pain_frames = [self._load_single(f"rguard_pain{i}") for i in range(1, 3)]
+        self._death_frames = [self._load_single(f"rguard_die{i}") for i in range(1, 5)]
 
     def _load_single(self, name: str) -> pygame.Surface:
         path = f"{SPRITES_PATH}guard/{name}.bmp"
@@ -67,8 +69,12 @@ class SpriteRenderer:
             if dist >= z_buffer[max(0, min(screen_x, SCREEN_WIDTH - 1))]:
                 continue
 
-            frames = self._chase_frames
-            frame = frames[enemy._anim_frame % 4]
+            if enemy.state == EnemyState.DYING:
+                frame = self._death_frames[min(enemy._anim_frame, 3)]
+            elif enemy.state == EnemyState.PAIN:
+                frame = self._pain_frames[min(enemy._anim_frame, 1)]
+            else:
+                frame = self._chase_frames[enemy._anim_frame % 4]
 
             scaled = pygame.transform.scale(frame, (sprite_width, sprite_height))
             self.screen.blit(scaled, (left, top))
