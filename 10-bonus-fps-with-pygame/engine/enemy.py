@@ -28,6 +28,17 @@ class Enemy:
         self._start_y = y
         self._patrol_dir = 1.0
 
+        # Animation
+        self._anim_timer = 0.0
+        self._anim_frame = 0
+    
+    def _update_animation(self, dt: float) -> None:
+        frame_duration = 0.15 if self.state == EnemyState.CHASE else 0.25
+        self._anim_timer += dt
+        if self._anim_timer >= frame_duration:
+            self._anim_timer = 0.0
+            self._anim_frame (self._anim_frame + 1) % 8
+
     def _move_towards(
             self,
             tx: float,
@@ -98,3 +109,5 @@ class Enemy:
             self._update_patrol(dt, map)
         elif self.state == EnemyState.CHASE:
             self._update_chase(dt, player, map)
+        
+        self._update_animation(dt)
