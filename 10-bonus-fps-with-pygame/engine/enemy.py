@@ -4,7 +4,8 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 from config import (
     ENEMY_SPEED,
-    ENEMY_DETECTION_RANGE
+    ENEMY_DETECTION_RANGE,
+    ENEMY_HEALTH
 )
 
 if TYPE_CHECKING:
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
 class EnemyState(Enum):
     PATROL = auto()
     CHASE = auto()
+    PAIN = auto()
+    DYING = auto()
 
 
 class Enemy:
@@ -22,6 +25,9 @@ class Enemy:
         self.x = x
         self.y = y
         self.state = EnemyState.PATROL
+        self._prev_state = EnemyState.CHASE
+        self.health = ENEMY_HEALTH
+        self.dead = False
 
         # Patrol state
         self._start_x = x
@@ -33,11 +39,36 @@ class Enemy:
         self._anim_frame = 0
     
     def _update_animation(self, dt: float) -> None:
-        frame_duration = 0.15 if self.state == EnemyState.CHASE else 0.25
+        if self.state == EnemyState.CHASE:
+            frame_duration = 0.15
+            max_frames = 4
+            loop = True
+        elif self.state == EnemyState.PATROL:
+            frame_duration = 0.25
+            max_frames = 4
+            loop = True
+        elif self.state == EnemyState.PAIN:
+            frame_duration = 0.1
+            max_frames = 2
+            loop = False
+        elif self.state == EnemyState.DYING:
+            frame_duration = 0.12
+            max_frames = 4
+            loop = False
+
         self._anim_timer += dt
         if self._anim_timer >= frame_duration:
             self._anim_timer = 0.0
-            self._anim_frame = (self._anim_frame + 1) % 4
+            if loop:
+                self._anim_frame = (self._anim_frame + 1) % max_frames
+            else:
+                if self._anim_frame < max_frames - 1:
+                    self._anim_frame += 1
+                else:
+                    if self.state == EnemyState.PAIN:
+                        self.state = self._prev_state
+                    elif self.state == EnemyState.DYING:
+                        self.dead = True
 
     def _move_towards(
             self,
@@ -91,6 +122,21 @@ class Enemy:
             player: "Player"
     ) -> float:
         return math.hypot(player.x - self.x, player.y - self.y)
+    
+    def take_damage(self, amount: int) -> None:
+        if self.state in (EnemyState.DYING, EnemyState.PAIN):
+            return
+        
+        self.health -= amount
+        if self.health <= 0:
+            self.state = EnemyState.DYING
+            self._anim_frame = 0
+            self._anim_timer = 0.0
+        else:
+            self._prev_state = self.state
+            self.state = EnemyState.PAIN
+            self._anim_frame = 0
+            self._anim_timer = 0.0
 
     def update(
             self,
@@ -98,6 +144,10 @@ class Enemy:
             player: "Player",
             map: "Map"
     ) -> None:
+        if self.state in (EnemyState.DYING, EnemyState.PAIN):
+            self._update_animation(dt)
+            return
+
         dist = self.distance_to_player(player)
 
         if self.state == EnemyState.PATROL and dist < ENEMY_DETECTION_RANGE:
