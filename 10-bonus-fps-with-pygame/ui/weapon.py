@@ -5,7 +5,10 @@ from config import (
     WEAPON_FRAME_H,
     WEAPON_SCALE,
     WEAPON_ROW,
-    WEAPONS_SHEET
+    WEAPONS_SHEET,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    HUD_HEIGHT
 )
 
 
@@ -33,3 +36,15 @@ class Weapon:
             frame = self._sheet.subsurface(rect).copy()
             frames.append(frame)
         return frames
+    
+    def render(self, screen: pygame.Surface) -> None:
+        frame = self._frames[self._current_frame]
+
+        scale_w = WEAPON_FRAME_W * WEAPON_SCALE
+        scale_h = WEAPON_FRAME_H * WEAPON_SCALE
+        scaled = pygame.transform.scale(frame, (scale_w, scale_h))
+
+        x = (SCREEN_WIDTH - scale_w) // 2
+        y = SCREEN_HEIGHT - HUD_HEIGHT - scale_h
+
+        screen.blit(scaled, (x, y))

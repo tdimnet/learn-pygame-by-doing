@@ -49,7 +49,7 @@ WEAPONS = {
 }
 WEAPON_FRAME_W = 64
 WEAPON_FRAME_H = 64
-WEAPON_SCALE = 6
+WEAPON_SCALE = 8
 WEAPON_ROW = {
     "knife": 1,
     "pistol": 1,

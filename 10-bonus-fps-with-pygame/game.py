@@ -15,6 +15,7 @@ from rendering.raycaster import Raycaster
 from rendering.sprite_renderer import SpriteRenderer
 
 from ui.hud import Hud
+from ui.weapon import Weapon
 
 
 class Game:
@@ -31,6 +32,7 @@ class Game:
         self.sprite_renderer = SpriteRenderer(self.screen)
 
         self.hud = Hud(self.screen)
+        self.weapon = Weapon()
 
     def run(self):
         while True:
@@ -71,3 +73,4 @@ class Game:
             health=self.player.health,
             ammo=8
         )
+        self.weapon.render(self.screen)
