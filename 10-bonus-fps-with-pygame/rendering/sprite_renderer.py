@@ -67,10 +67,8 @@ class SpriteRenderer:
             if dist >= z_buffer[max(0, min(screen_x, SCREEN_WIDTH - 1))]:
                 continue
 
-            if enemy.state == EnemyState.CHASE:
-                frame = self._chase_frames[enemy._anim_frame % 4]
-            else:
-                frame = self._patrol_frame
+            frames = self._chase_frames
+            frame = frames[enemy._anim_frame % 4]
 
             scaled = pygame.transform.scale(frame, (sprite_width, sprite_height))
             self.screen.blit(scaled, (left, top))
