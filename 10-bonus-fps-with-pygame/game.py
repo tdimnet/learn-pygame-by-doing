@@ -47,10 +47,13 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_e:
                     self.player.interact()
-
+            
+                if event.type == pygame.K_SPACE:
+                    print("+++")
 
     def update(self, dt: float) -> None:
         self.player.move(dt)
@@ -58,6 +61,8 @@ class Game:
 
         for enemy in self.enemies:
             enemy.update(dt, self.player, self.map)
+        
+        self.weapon.update(dt)
 
     def draw(self) -> None:
         self.raycaster.render()

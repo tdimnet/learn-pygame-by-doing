@@ -41,7 +41,7 @@ class Weapon:
             frames.append(frame)
         return frames
     
-    def shoot(self, dt: float) -> None:
+    def shoot(self) -> None:
         if not self._firing:
             self._firing = True
             self._current_frame = 1
