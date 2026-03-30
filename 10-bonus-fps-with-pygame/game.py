@@ -107,6 +107,7 @@ class Game:
 
         for enemy in self.enemies:
             enemy.update(dt, self.player, self.map)
+        # self.enemies = [e for e in self.enemies if not e.dead]
         
         self.weapon.update(dt)
 
