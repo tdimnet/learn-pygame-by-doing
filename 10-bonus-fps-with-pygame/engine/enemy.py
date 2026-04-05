@@ -21,6 +21,7 @@ class EnemyState(Enum):
     CHASE = auto()
     PAIN = auto()
     DYING = auto()
+    ATTACK = auto()
 
 
 class Enemy:
@@ -42,6 +43,9 @@ class Enemy:
         self._anim_frame = 0
 
         self._attack_timer = 0.0
+
+        self._hit_dealt = False
+        self.attack_hit = False
     
     def _update_animation(self, dt: float) -> None:
         if self.state == EnemyState.CHASE:
@@ -60,6 +64,19 @@ class Enemy:
             frame_duration = 0.12
             max_frames = 4
             loop = False
+        elif self.state == EnemyState.ATTACK:
+            frame_duration = 0.1
+            self._anim_timer += dt
+            if self._anim_timer >= frame_duration:
+                self._anim_timer = 0.0
+                self._anim_frame += 1
+                if self._anim_frame == 1 and not self._hit_dealt:
+                    self.attack_hit = True
+                    self._hit_dealt = True
+                if self._anim_frame >= 3:
+                    self._anim_frame = 0
+                    self._hit_dealt = False
+            return
 
         self._anim_timer += dt
         if self._anim_timer >= frame_duration:
@@ -171,12 +188,27 @@ class Enemy:
 
         if self.state == EnemyState.PATROL and dist < ENEMY_DETECTION_RANGE:
             self.state = EnemyState.CHASE
-        elif self.state == EnemyState.CHASE and dist > ENEMY_DETECTION_RANGE * 1.2:
-            self.state = EnemyState.PATROL
         
+        elif self.state == EnemyState.CHASE:
+            if dist <= ENEMY_ATTACK_RANGE:
+                self.state = EnemyState.ATTACK
+                self._anim_frame = 0
+                self._hit_dealt = False
+            elif dist > ENEMY_ATTACK_RANGE * 1.2:
+                self.state = EnemyState.PATROL
+        
+        elif self.state == EnemyState.ATTACK:
+            if dist > ENEMY_ATTACK_RANGE:
+                self.state = EnemyState.CHASE
+            if self.attack_hit:
+                player.take_damage(ENEMY_DAMAGE)
+                self.attack_hit = False
+
         if self.state == EnemyState.PATROL:
             self._update_patrol(dt, map)
         elif self.state == EnemyState.CHASE:
             self._update_chase(dt, player, map)
-        
+        elif self.state in (EnemyState.ATTACK,):
+            pass
+
         self._update_animation(dt)
