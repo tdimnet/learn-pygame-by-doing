@@ -46,6 +46,9 @@ class Game:
         )
         self._flash_surface.fill((255, 0, 0, 80))
 
+        self._game_over = False
+        self._font_game_over = pygame.font.SysFont("Arial", 80, bold=True)
+
     def _try_shoot(self) -> None:
         candidates = []
 
@@ -109,14 +112,21 @@ class Game:
                     self._try_shoot()
 
     def update(self, dt: float) -> None:
+        if self._game_over:
+            return
+
         self.player.move(dt)
         self.player.rotate(dt)
+        self.weapon.update(dt)
 
         for enemy in self.enemies:
             enemy.update(dt, self.player, self.map)
         # self.enemies = [e for e in self.enemies if not e.dead]
-        
-        self.weapon.update(dt)
+
+        if self.player.health <= 0:
+            self._game_over = True
+            for enemy in self.enemies:
+                enemy.state = EnemyState.PATROL
 
         if self.player.just_hit:
             self._flash_timer = 0.3
@@ -146,3 +156,21 @@ class Game:
         )
 
         self.weapon.render(self.screen)
+
+        if self._game_over:
+            overlay = pygame.Surface(
+                (SCREEN_WIDTH, SCREEN_HEIGHT),
+                pygame.SRCALPHA
+            )
+            overlay.fill((0, 0, 0, 140))
+            self.screen.blit(overlay, (0, 0))
+
+            text = self._font_game_over.render(
+                "GAME OVER",
+                True,
+                (200, 0, 0)
+            )
+            rect = text.get_rect(
+                center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+            )
+            self.screen.blit(text, rect)
