@@ -194,7 +194,7 @@ class Enemy:
                 self.state = EnemyState.ATTACK
                 self._anim_frame = 0
                 self._hit_dealt = False
-            elif dist > ENEMY_ATTACK_RANGE * 1.2:
+            elif dist > ENEMY_DETECTION_RANGE * 1.2:
                 self.state = EnemyState.PATROL
         
         elif self.state == EnemyState.ATTACK:
