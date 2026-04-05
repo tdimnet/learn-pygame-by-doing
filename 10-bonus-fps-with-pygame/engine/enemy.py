@@ -137,7 +137,6 @@ class Enemy:
             player: "Player",
             map: "Map"
     ) -> None:
-        self._try_attack(dt, player)
         self._move_towards(player.x, player.y, ENEMY_SPEED * dt, map)
 
     def _try_attack(
