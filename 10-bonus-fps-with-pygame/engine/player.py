@@ -19,12 +19,17 @@ class Player:
         self.angle = PLAYER_START_ANGLE
         self.health = PLAYER_MAX_HEALTH
         self.map = map
+        self.just_hit = False
 
     def _try_move(self, new_x: int, new_y: int) -> None:
         if not self.map.is_wall(int(new_x), int(self.y)):
             self.x = new_x
         if not self.map.is_wall(int(self.x), int(new_y)):
             self.y = new_y
+        
+    def take_damage(self, amount: int) -> None:
+        self.health = max(0, self.health - amount)
+        self.just_hit = True
 
     def move(self, dt: float) -> None:
         keys = pygame.key.get_pressed()

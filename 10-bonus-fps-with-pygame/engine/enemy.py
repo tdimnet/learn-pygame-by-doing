@@ -5,7 +5,10 @@ from typing import TYPE_CHECKING
 from config import (
     ENEMY_SPEED,
     ENEMY_DETECTION_RANGE,
-    ENEMY_HEALTH
+    ENEMY_HEALTH,
+    ENEMY_ATTACK_COOLDOWN,
+    ENEMY_ATTACK_RANGE,
+    ENEMY_DAMAGE
 )
 
 if TYPE_CHECKING:
@@ -37,6 +40,8 @@ class Enemy:
         # Animation
         self._anim_timer = 0.0
         self._anim_frame = 0
+
+        self._attack_timer = 0.0
     
     def _update_animation(self, dt: float) -> None:
         if self.state == EnemyState.CHASE:
@@ -115,7 +120,21 @@ class Enemy:
             player: "Player",
             map: "Map"
     ) -> None:
+        self._try_attack(dt, player)
         self._move_towards(player.x, player.y, ENEMY_SPEED * dt, map)
+
+    def _try_attack(
+            self,
+            dt: float,
+            player: "Player"
+    ) -> None:
+        self._attack_timer += dt
+        if self._attack_timer < ENEMY_ATTACK_COOLDOWN:
+            return
+        
+        if self.distance_to_player(player) <= ENEMY_ATTACK_RANGE:
+            self._attack_timer = 0.0
+            player.take_damage(ENEMY_DAMAGE)
 
     def distance_to_player(
             self,
