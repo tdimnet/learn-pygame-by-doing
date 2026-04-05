@@ -39,6 +39,13 @@ class Game:
         self.hud = Hud(self.screen)
         self.weapon = Weapon()
 
+        self._flash_timer = 0.0
+        self._flash_surface = pygame.Surface(
+            (SCREEN_WIDTH, SCREEN_HEIGHT),
+            pygame.SRCALPHA
+        )
+        self._flash_surface.fill((255, 0, 0, 80))
+
     def _try_shoot(self) -> None:
         candidates = []
 
@@ -111,13 +118,25 @@ class Game:
         
         self.weapon.update(dt)
 
+        if self.player.just_hit:
+            self._flash_timer = 0.3
+            self.player.just_hit = False
+        
+        if self._flash_timer > 0:
+            self._flash_timer -= dt
+
     def draw(self) -> None:
         self.raycaster.render()
+
         self.sprite_renderer.render(
             self.enemies,
             self.player,
             self.raycaster.z_buffer
         )
+
+        if self._flash_timer > 0:
+            self.screen.blit(self._flash_surface, (0, 0))
+
         self.hud.render(
             level=1,
             score=0,
@@ -125,4 +144,5 @@ class Game:
             health=self.player.health,
             ammo=8
         )
+
         self.weapon.render(self.screen)
